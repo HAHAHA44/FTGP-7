@@ -55,7 +55,6 @@ contract Betting {
 
     struct BetOrder {
         uint256 id;
-        //uint256 ids;
         uint option;
         address payable user;
         uint256 odds;
@@ -63,9 +62,10 @@ contract Betting {
         uint256 betsPlacedAmount;
         uint256 prospectiveIncome;
         uint256 maxIncome;
-
+        bool participation;
         bool settled;
         bool proceed;
+
     }
 
     // 暂时有点用的构造器
@@ -96,20 +96,21 @@ contract Betting {
             option: optionSelected,
             odds: oddSetted,
             totalBetAmount: msg.value,
-            betsPlacedAmount:msg.value/oddSetted,
-            prospectiveIncome:0,
-            maxIncome:(msg.value/oddSetted)*97/100, // 3% commission
+            betsPlacedAmount: msg.value/oddSetted,
+            prospectiveIncome: 0,
+            maxIncome: (msg.value/oddSetted)*97/100, // 3% commission
+            participation: false,
             settled: false,
             proceed: false
         }));
         // 判断是否有订单
-        if(currentOdd[optionSelected]==0){
-            currentOdd[optionSelected]=oddSetted;
+        if(currentOdd[optionSelected]== 0){
+            currentOdd[optionSelected] = oddSetted;
             currentId[optionSelected] = betOrders.length;
         }
-        // 判断是否是最低倍率订单
+        // 判断是否是最高倍率订单
         else{
-            if(oddSetted < currentOdd[optionSelected]){
+            if(oddSetted > currentOdd[optionSelected]){
                currentOdd[optionSelected] = oddSetted;
                currentId[optionSelected] = betOrders.length;
                }
@@ -120,12 +121,13 @@ contract Betting {
     }
     
     function placeBet(uint256 optionSelected) public payable {
+        require(betOrders.length > 0, "Array is empty");
         require(currentId[optionSelected] > 0, "Invalid bet option ID");
         BetOrder storage betOrder = betOrders[currentId[optionSelected]-1];
         require(!betOrder.settled, "Bet Order already settled");
-        require(!betOrder.settled, "Bet Order already proceed");
+        require(!betOrder.proceed, "Bet Order already proceed");
         require(msg.value > 0, "Invalid bet amount");
-        require(msg.value < betOrder.betsPlacedAmount, "Beyond the bet amount range");
+        require(msg.value <= betOrder.betsPlacedAmount, "Beyond the bet amount range");
         // balances[msg.sender] += msg.value;
         bets.push(Bet({
             id: bets.length + 1,
@@ -143,17 +145,49 @@ contract Betting {
             amount: msg.value,
             //预计收益
             prospectiveIncome: msg.value * betOrder.odds*97/100,
+            //是否结算
             settled :false
         }));
-        betOrder.prospectiveIncome += msg.value;
+        betOrder.participation = true;
+        betOrder.prospectiveIncome += msg.value*97/100;
         betOrder.betsPlacedAmount -= msg.value;
-        // if(betOrder.betsPlacedAmount == 0){
-        //     betOrder.proceed = true;
-        //     //遍历找到下一个最低倍率的订单(还没搓)
-        //     currentId[optionSelected] = betOrder.id;
-        // }
+        if(betOrder.betsPlacedAmount == 0){
+            uint maxOdd = 0;
+            uint maxId = 0;
+            betOrder.proceed = true;
+            for(uint i=0 ;i< betOrders.length;i++){
+                if(betOrders[i].proceed == false){
+                    if( betOrders[i].odds > maxOdd){
+                        maxOdd = betOrders[i].odds;
+                        maxId = betOrders[i].id;
+                    }
+                }
+            }
+            currentId[optionSelected] = maxId;
+            currentOdd[optionSelected] = maxOdd;
+        }
     }
     //结算
+    function settle(uint256 optionSelected) public payable{
+        for(uint i=0 ;i< betOrders.length;i++){
+            //待修改，目前可用
+            if(betOrders[i].participation == true){
+                if(betOrders[i].option != optionSelected){
+                    payable(betOrders[i].user).transfer(betOrders[i].prospectiveIncome);
+                    betOrders[i].settled =true;
+                }
+            }
+        }
+        for(uint i=0 ;i< bets.length;i++){
+            if(bets[i].settled =false){
+                if(bets[i].betOption == optionSelected){
+                    payable(bets[i].user).transfer(bets[i].prospectiveIncome);
+                    bets[i].settled =true;
+                    }
+            }
+        }
+        
+    }
 
     // function checkPlayerExists(address player) public view returns(bool) {
     //     for(uint i = 0; i < players.length; i++) {
