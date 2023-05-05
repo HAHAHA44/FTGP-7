@@ -19,18 +19,27 @@ const address = Addresses.CoinFlip;
 
 async function connect() {
 	if (typeof window.ethereum !== "undefined") {
-		try {
-			await window.ethereum.request({ method: "eth_requestAccounts" });
-		} catch (error) {
-			console.log(error);
-		}
-		document.getElementById("connectButton").innerHTML = "Connected";
-		const accounts = await window.ethereum.request({ method: "eth_accounts" });
-		document.getElementById("accountLabel").innerHTML = "Account: " + accounts;
-		console.log(accounts);
+		const provider = new ethers.providers.Web3Provider(window.ethereum);
+
+		// use this way to wake up metamask.
+		const accounts = await provider.send("eth_requestAccounts", []);
+		const account = accounts[0];
+		return account;
 	} else {
 		alert("Please install MetaMask");
 	}
+}
+
+export async function disconnect() {
+	if (window.ethereum) {
+		const provider = new ethers.providers.Web3Provider(window.ethereum);
+	  
+		try {
+			await window.ethereum.request({ method: 'eth_requestAccounts' });
+		} catch (error) {
+			console.error('Failed to logout from MetaMask', error);
+		}
+	};
 }
 
 async function check() {
