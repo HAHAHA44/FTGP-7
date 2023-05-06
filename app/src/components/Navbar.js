@@ -4,7 +4,7 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
-import { Link, BrowserRouter } from "react-router-dom";
+import { Link, BrowserRouter, useLocation } from "react-router-dom";
 import { Button } from '@mui/material';
 import { connect, disconnect } from '../eth';
 import { green } from '@mui/material/colors';
@@ -75,7 +75,10 @@ const BreathingAvatar = styled(Box)(({ theme }) => ({
 }));
 
 export default function CustomizedTabs() {
-  const [value, setValue] = React.useState(1);
+  const location = useLocation();
+
+  const [value, setValue] = React.useState(location.pathname === '/createTheme' ? 1 : 0);
+
 
   const [btn, setBtn] = React.useState("Connect Wallet");
 
@@ -129,7 +132,7 @@ export default function CustomizedTabs() {
           >
             <StyledTab label="Home" component={Link}  to="/" />
             <StyledTab label="Create Theme" component={Link}  to="/createTheme" />
-            <StyledTab label="Connections" component={Link} to="/guess" />
+            {/* <StyledTab label="Connections" component={Link} to="/guess" /> */}
           </StyledTabs>
           <Button
             variant="outlined"

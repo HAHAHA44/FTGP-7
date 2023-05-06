@@ -1,71 +1,80 @@
 import React, {useState} from 'react';
-import { TextField, Button, Container, Stack } from '@mui/material';
+import { TextField, Button, Container, Stack, Radio, FormControl, RadioGroup, FormLabel, FormControlLabel } from '@mui/material';
 import { Link } from "react-router-dom"
+
  
  
 const CreateTheme = () => {
-    const [firstName, setFirstName] = useState('')
-    const [lastName, setLastName] = useState('')
-    const [email, setEmail] = useState('')
-    const [dateOfBirth, setDateOfBirth] = useState('')
-    const [password, setPassword] = useState('')
+    const [themeName, setThemeName] = useState('')
+    const [pool, setPool] = useState(100000)
+    const [odd, setOdd] = useState(2)
+    const [prediction, setPrediction] = useState(true)
  
     function handleSubmit(event) {
         event.preventDefault();
-        console.log(firstName, lastName, email, dateOfBirth, password) 
+        console.log(themeName, prediction, pool, odd) 
     }
  
     return (
         <React.Fragment>
             <h1>Create a guess theme</h1>
             <form onSubmit={handleSubmit} action={<Link to="/login" />}>
+                <TextField
+                    type="text"
+                    variant='outlined'
+                    color='secondary'
+                    label="Theme name"
+                    onChange={e => setThemeName(e.target.value)}
+                    value={themeName}
+                    fullWidth
+                    required
+                    sx={{mb: 4}}
+                />
+                {/* <TextField
+                    type="text"
+                    variant='outlined'
+                    color='secondary'
+                    label="Last Name"
+                    onChange={e => setLastName(e.target.value)}
+                    value={lastName}
+                    fullWidth
+                    required
+                /> */}
                 <Stack spacing={2} direction="row" sx={{marginBottom: 4}}>
+
                     <TextField
                         type="text"
                         variant='outlined'
                         color='secondary'
-                        label="First Name"
-                        onChange={e => setFirstName(e.target.value)}
-                        value={firstName}
+                        label="Pool(Wei)"
+                        onChange={e => setPool(e.target.value)}
+                        value={pool}
                         fullWidth
                         required
                     />
                     <TextField
-                        type="text"
+                        type="number"
                         variant='outlined'
                         color='secondary'
-                        label="Last Name"
-                        onChange={e => setLastName(e.target.value)}
-                        value={lastName}
-                        fullWidth
+                        label="odd"
+                        onChange={e => setOdd(e.target.value)}
+                        value={odd}
                         required
+                        fullWidth
                     />
                 </Stack>
-                <TextField
-                    type="email"
-                    variant='outlined'
-                    color='secondary'
-                    label="Email"
-                    onChange={e => setEmail(e.target.value)}
-                    value={email}
-                    fullWidth
-                    required
-                    sx={{mb: 4}}
-                />
-                <TextField
-                    type="password"
-                    variant='outlined'
-                    color='secondary'
-                    label="Password"
-                    onChange={e => setPassword(e.target.value)}
-                    value={password}
-                    required
-                    fullWidth
-                    sx={{mb: 4}}
-                />
-                <Button variant="outlined" color="secondary" type="submit">Register</Button>
+
+                <FormControl component="fieldset" sx={{mb: 4}}>
+                    <FormLabel component="legend">Your Prediction</FormLabel>
+                    <RadioGroup value={prediction} aria-label="gender" name="radio-buttons-group" onChange={e => setPrediction(e.target.value)}>
+                        <FormControlLabel value={true} control={<Radio />} label="Will happen" />
+                        <FormControlLabel value={false} control={<Radio />} label="Will not happen" />
+                    </RadioGroup>
+                </FormControl>
+
+                <Button variant="outlined" color="secondary" type="submit">Create</Button>
             </form>
-            <small>Already have an account? <Link to="/login">Login Here</Link></small>
+            {/* <small>Already have an account? <Link to="/login">Login Here</Link></small> */}
      
         </React.Fragment>
     )

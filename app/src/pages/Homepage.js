@@ -1,7 +1,8 @@
 import { Grid, Paper } from "@mui/material";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { useState, useEffect, Fragment } from "react";
-import TextField from '@mui/material/TextField';
+import BetThemeItem from "../components/BetThemeItem";
+import { SearchBar } from "../components/SearchBar";
 
 
 export default function App() {
@@ -23,7 +24,7 @@ export default function App() {
 
   return (
     <Fragment>
-      <TextField size="small" margin="normal" id="outlined-basic" label="Outlined" variant="outlined" />
+      <SearchBar></SearchBar>
       <InfiniteScroll
         dataLength={items.length}
         next={loadMoreData}
@@ -32,8 +33,8 @@ export default function App() {
       >
         <Grid container spacing={2}>
           {items.map((item, index) => (
-            <Grid item key={index} xs={12} sm={6} md={4}>
-              <Paper>{item}</Paper>
+            <Grid item key={index} xs={12} sm={6} md={4} lg={3}>
+                <BetThemeItem data={item}></BetThemeItem>
             </Grid>
           ))}
         </Grid>
@@ -42,11 +43,11 @@ export default function App() {
   );
 }
 
-// 模拟异步加载数据
+// Simulate async data
 const fetchData = () => {
   return new Promise((resolve) => {
     setTimeout(() => {
-      const newData = Array.from({ length: 10 }, (_, index) => `Item ${index}`);
+      const newData = Array.from({ length: 10 }, (_, index) => ({name: `Will it rain tomorrow? ${index}`, participants: 20, odd: 4, createTime: "September 14, 2016", pool: 10000, img: 'https://p3.ssl.qhimg.com/t01f7d210920c0c73bd.jpg'}));
       resolve(newData);
     }, 1000);
   });
