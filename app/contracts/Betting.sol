@@ -84,6 +84,30 @@ contract Betting {
         currentId=new uint[](_numOfoptions);
     }
     
+    // constructor(
+        // address _owner,
+        // string memory guess_id_str,
+        // string memory _name,
+        // string memory _description,
+        // uint256 initial_pool,
+        // uint256 _odd,
+        // uint _numOfoptions,
+        // string memory _image,
+        // string memory _source) {
+
+        // owner = _owner;
+        // guessThemeID = guess_id_str;
+        // guessTheme = _name;
+        // description = _description;
+        // initialPool = initial_pool;
+        // odd = _odd;
+        // image = _image;
+        // source = _source;
+        // ended = false;
+        // currentOdd=new uint[](_numOfoptions);
+        // currentId=new uint[](_numOfoptions);
+        // }
+    
     function createOrder(uint optionSelected, uint oddSetted) public payable {
         //由于gas费后面的创建要求将会提高
         require(!ended , "Bet finsihed");
