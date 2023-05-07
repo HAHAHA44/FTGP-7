@@ -12,8 +12,10 @@ import Navbar from "./components/Navbar"
 import {
   createHashRouter,
   RouterProvider,
+  json,
 } from "react-router-dom";
 import CreateTheme from './pages/CreateTheme';
+import MyBets from './pages/MyBets';
 
 
 const router = createHashRouter([
@@ -29,6 +31,14 @@ const router = createHashRouter([
         path: "/createTheme",
         element: <CreateTheme />,
       },
+      {
+        element: <MyBets />,
+        path:"mybets/:myAccount",
+        loader: async ({ request, params }) => {
+          const data = { some: "thing", params };
+          return json(data, { status: 200 });
+        }
+      }
     ],
   },
 ])

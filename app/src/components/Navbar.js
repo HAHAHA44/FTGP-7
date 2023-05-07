@@ -5,12 +5,13 @@ import Tab from '@mui/material/Tab';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import { Link, BrowserRouter, useLocation } from "react-router-dom";
-import { Button } from '@mui/material';
+import { Button, ButtonGroup } from '@mui/material';
 import { connect, disconnect } from '../eth';
 import { green } from '@mui/material/colors';
 import { Box } from '@mui/material';
 import { Popover } from '@mui/material';
 import LogoutIcon from '@mui/icons-material/Logout';
+import HouseIcon from '@mui/icons-material/House'
 
 // const LinkBehavior = React.forwardRef((props, ref) => (
 //   <Link ref={ref} to="/dashboard" {...props} />
@@ -80,14 +81,14 @@ export default function CustomizedTabs() {
   const [value, setValue] = React.useState(location.pathname === '/createTheme' ? 1 : 0);
 
 
-  const [btn, setBtn] = React.useState("Connect Wallet");
+  const [btn, setBtn] = React.useState(undefined);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
 
   const connectAccount = async (event) => {
-    if (btn === "Connect Wallet") {
+    if (!btn) {
       const account = await connect();
       setBtn(account);
     } else {
@@ -140,8 +141,8 @@ export default function CustomizedTabs() {
             style={{ width: 160, whiteSpace: "nowrap" }}
             >
               <Typography style={{ fontFamily: "inherit", fontSize: "inherit", fontWeight: "inherit" }} noWrap>
-                {/* {btn !== 'Connect Wallet' && <BreathingAvatar/>} */}
-                {btn}
+                {btn && <BreathingAvatar/>} &nbsp;
+                {btn || "Connect Wallet"}
               </Typography>
             </Button>
             <Popover
@@ -157,15 +158,31 @@ export default function CustomizedTabs() {
                 horizontal: 'center',
               }}
             >
-              <Button
-                variant="outlined"
-                startIcon={<LogoutIcon style={{fontSize:"inherit"}}/>}
-                onClick={() => {
-                  disconnect();
-                  setBtn("Connect Wallet");
-                  setAnchorEl(null);
-                }}
-              >Logout</Button>
+              <ButtonGroup
+                orientation="vertical"
+                aria-label="vertical contained button group"
+                variant="text"
+                style={{width: 160}}
+              >
+                <Button
+                  startIcon={<HouseIcon style={{fontSize:"inherit"}}/>}
+                  component={Link}
+                  to={`mybets/${btn}`}
+                  // onClick={() => {
+                  //   disconnect();
+                  //   setBtn("Connect Wallet");
+                  //   setAnchorEl(null);
+                  // }}
+                >My Bets</Button>
+                <Button
+                  startIcon={<LogoutIcon style={{fontSize:"inherit"}}/>}
+                  onClick={() => {
+                    disconnect();
+                    setBtn(undefined);
+                    setAnchorEl(null);
+                  }}
+                >Logout</Button>
+              </ButtonGroup>
             </Popover>
         </Grid>
       </Grid>

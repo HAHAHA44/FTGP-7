@@ -72,7 +72,7 @@ const CreateTheme = () => {
                     </RadioGroup>
                 </FormControl>
 
-                <Button variant="outlined" color="secondary" type="submit">Create</Button>
+                <Button variant="outlined" color="primary" type="submit" style={{ display: 'block' }}>Create</Button>
             </form>
             {/* <small>Already have an account? <Link to="/login">Login Here</Link></small> */}
      
