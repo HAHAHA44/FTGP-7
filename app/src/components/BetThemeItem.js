@@ -17,6 +17,10 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { Button, ButtonGroup } from '@mui/material';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
+import { JoinHandicap } from './JoinHandicap';
+import { JoinAsBanker } from './JoinAsBanker';
+
+
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
   return <IconButton {...other} />;
@@ -30,6 +34,25 @@ const ExpandMore = styled((props) => {
 
 export default function RecipeReviewCard(props) {
   const [expanded, setExpanded] = React.useState(false);
+  const [joinHandicapOpen, setJoinHandicapOpen] = React.useState(false);
+  const [joinBankerOpen, setJoinBankerOpen] = React.useState(false);
+  // const [expanded, setExpanded] = React.useState(false);
+
+  const handleJoinHandicapOpen = () => {
+    setJoinHandicapOpen(true);
+  };
+
+  const handleJoinHandicapClose = () => {
+    setJoinHandicapOpen(false);
+  };
+
+  const handleJoinBankerOpen = () => {
+    setJoinBankerOpen(true);
+  };
+
+  const handleJoinBankerClose = () => {
+    setJoinBankerOpen(false);
+  };
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
@@ -117,16 +140,18 @@ export default function RecipeReviewCard(props) {
           <Typography variant='body2'>
             Pool: {pool}
           </Typography>
-          <Typography variant='body2' paragraphz>
+          <Typography variant='body2' paragraph>
             Total participants: {participants}
           </Typography>
-          <ButtonGroup variant="outlined" aria-label="outlined primary button group">
-            <Button startIcon={<MonetizationOnIcon></MonetizationOnIcon>}>Join handicap</Button>
-            <Button startIcon={<AccountBalanceIcon></AccountBalanceIcon>}>Join as Banker</Button>
+          <ButtonGroup variant="outlined" aria-label="outlined primary button group" fullWidth size='small'>
+            <Button startIcon={<MonetizationOnIcon></MonetizationOnIcon>} onClick={handleJoinHandicapOpen}>Join handicap</Button>
+            <Button startIcon={<AccountBalanceIcon></AccountBalanceIcon>} onClick={handleJoinBankerOpen}>Join as Banker</Button>
           </ButtonGroup>
 
         </CardContent>
       </Collapse>
+      <JoinHandicap open={joinHandicapOpen} onClose={handleJoinHandicapClose} data={props.data}></JoinHandicap>
+      <JoinAsBanker open={joinBankerOpen} onClose={handleJoinBankerClose} data={props.data}></JoinAsBanker>
     </Card>
   );
 }
