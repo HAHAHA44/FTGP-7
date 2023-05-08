@@ -1,17 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-interface bettingDetails {
-    function getbettingDetail() external view returns (string memory, string memory);
-}
-
-// interface BetInterface {
-//     function getBets() external view returns ( memory);;
-// }
 
 contract Betting {
     //合约构造参数
     address public owner;
+    uint public BettingId;
     uint public totalBets;
     uint public minimumBet;
     uint public maximumBet;
@@ -37,8 +31,8 @@ contract Betting {
     //暂时没用
     //address[] public players;
     //address payable[] public players;
-    mapping(address => uint[]) public playerBets;
-    mapping(address => uint[]) public playerOrders;
+    mapping(address => uint[]) public playerBets; // playerBets 使用映射，什么地址发出的请求获得其地址的下注信息
+    mapping(address => uint[]) public playerOrders; // playerOrders 使用映射，什么地址发出的请求获得其地址的下庄信息
     //address payable[] public winners;
     // uint public totalAmount;
     // uint public winningAmount;
@@ -89,9 +83,17 @@ contract Betting {
     }
 
     // 构造器
-    // constructor(uint _numOfoptions, uint _maximumBet, uint _bettingTime, string _topic, string _description,)
+    // constructor(address _owner,uint _BettingId, string memory _topic,string memory _description, uint _numOfoptions, uint _maximumBet, uint _bettingTime){
+    //     owner = _owner;
+    //     BettingId = _BettingId;
+    //     BettingTopic = _topic;
+    //     description = _description;
+    //     maximumBet = _maximumBet;
+    //     bettingEnds = block.timestamp + _bettingTime;
+    //     currentOdd=new uint[](_numOfoptions);
+    //     currentId=new uint[](_numOfoptions);
+    // }
     constructor(uint _numOfoptions) {
-        owner = msg.sender;
         // minimumBet = _minimumBet;
         // maximumBet = _maximumBet;
         // bettingEnds = block.timestamp + _bettingTime;
@@ -279,6 +281,18 @@ contract Betting {
     }
     function getAllOrders() external view returns (BetOrder[] memory){
         return (betOrders);
+    }
+    function getBet(uint i) external view returns (Bet memory){
+        return (bets[i]);
+    }
+    function getOrder(uint i) external view returns (BetOrder memory){
+        return (betOrders[i]);
+    }
+    function getPlayerBet(address user) external view returns (uint256[] memory){
+        return (playerBets[user]);
+    }
+     function getPlayerOrder(address user) external view returns (uint256[] memory){
+        return (playerOrders[user]);
     }
 
 
