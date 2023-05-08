@@ -140,7 +140,7 @@ export default function CustomizedTabs() {
             onClick={connectAccount}
             style={{ width: 160, whiteSpace: "nowrap" }}
             >
-              <Typography style={{ fontFamily: "inherit", fontSize: "inherit", fontWeight: "inherit" }} noWrap>
+              <Typography style={{ fontFamily: "inherit", fontSize: "inherit", fontWeight: "inherit" }} noWrap component={'span'}>
                 {btn && <BreathingAvatar/>} &nbsp;
                 {btn || "Connect Wallet"}
               </Typography>

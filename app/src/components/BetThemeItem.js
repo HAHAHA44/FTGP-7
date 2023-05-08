@@ -17,6 +17,8 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { Button, ButtonGroup } from '@mui/material';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
+import CancelIcon from '@mui/icons-material/Cancel';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { JoinHandicap } from './JoinHandicap';
 import { JoinAsBanker } from './JoinAsBanker';
 
@@ -36,9 +38,11 @@ export default function RecipeReviewCard(props) {
   const [expanded, setExpanded] = React.useState(false);
   const [joinHandicapOpen, setJoinHandicapOpen] = React.useState(false);
   const [joinBankerOpen, setJoinBankerOpen] = React.useState(false);
+  const [prediction, setPrediction] = React.useState(false);
   // const [expanded, setExpanded] = React.useState(false);
 
-  const handleJoinHandicapOpen = () => {
+  const handleJoinHandicapOpen = (prediction) => {
+    setPrediction(prediction);
     setJoinHandicapOpen(true);
   };
 
@@ -58,7 +62,7 @@ export default function RecipeReviewCard(props) {
     setExpanded(!expanded);
   };
 
-  const {name, createTime, img, prediction, participants, pool, odd} = props.data;
+  const {name, createTime, img, participants, yesPool, yesOdd, noPool, noOdd } = props.data;
   return (
     <Card sx={{ maxWidth: 345 }}>
       {/* <CardHeader
@@ -130,28 +134,39 @@ export default function RecipeReviewCard(props) {
       </CardActions> */}
       <Collapse in={expanded} timeout="auto" unmountOnExit>
         <CardContent>
-          <Typography variant='subtitle1'>Top Handicap</Typography>
-          <Typography variant='body2'>
+          {/* <Typography variant='body2'>
             Prediction: {prediction ? 'Will happen' : 'Will not happen'}
-          </Typography>
-          <Typography variant='body2'>
+          </Typography> */}
+          {/* <Typography variant='body2'>
             Odd: {odd}
           </Typography>
           <Typography variant='body2'>
             Pool: {pool}
+          </Typography> */}
+          <Typography variant='body2' paragraph>
+            Participants: {participants}
           </Typography>
           <Typography variant='body2' paragraph>
-            Total participants: {participants}
+            Make your prediction:
           </Typography>
-          <ButtonGroup variant="outlined" aria-label="outlined primary button group" fullWidth size='small'>
-            <Button startIcon={<MonetizationOnIcon></MonetizationOnIcon>} onClick={handleJoinHandicapOpen}>Join handicap</Button>
-            <Button startIcon={<AccountBalanceIcon></AccountBalanceIcon>} onClick={handleJoinBankerOpen}>Join as Banker</Button>
+          <ButtonGroup variant="contained" color='inherit' aria-label="outlined primary button group" fullWidth size='medium' orientation="vertical">
+            <Button startIcon={<CheckCircleIcon></CheckCircleIcon>} color='success' onClick={() => {handleJoinHandicapOpen(true)}}>
+              {/* Yes <br></br> */}
+              Odd: {yesOdd} &nbsp;
+              Pool: {yesPool}
+            </Button>
+            <Button startIcon={<CancelIcon></CancelIcon>} color='error' onClick={() => {handleJoinHandicapOpen(false)}}>
+              {/* No <br></br> */}
+              Odd: {noOdd} &nbsp;
+              Pool: {noPool}
+            </Button>
+            <Button startIcon={<AccountBalanceIcon></AccountBalanceIcon>} color='info' onClick={handleJoinBankerOpen}>Join as Banker</Button>
           </ButtonGroup>
 
         </CardContent>
       </Collapse>
-      <JoinHandicap open={joinHandicapOpen} onClose={handleJoinHandicapClose} data={props.data}></JoinHandicap>
-      <JoinAsBanker open={joinBankerOpen} onClose={handleJoinBankerClose} data={props.data}></JoinAsBanker>
+      <JoinHandicap open={joinHandicapOpen} onClose={handleJoinHandicapClose} data={{...props.data, prediction}}></JoinHandicap>
+      <JoinAsBanker open={joinBankerOpen} onClose={handleJoinBankerClose} data={{...props.data, prediction}}></JoinAsBanker>
     </Card>
   );
 }

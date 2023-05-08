@@ -10,7 +10,7 @@ import { Typography } from '@mui/material';
 
 export const JoinHandicap = (props) => {
     const { open, onClose } = props;
-    const {name, createTime, prediction, participants, pool, odd} = props.data;
+    const {name, createTime, prediction, participants, yesPool, yesOdd, noOdd, noPool} = props.data;
     const [betAmount, setBetAmount] = React.useState(100);
     const onGo = () => {
         console.log("You will join this handicap with bet amount", betAmount);
@@ -31,10 +31,10 @@ export const JoinHandicap = (props) => {
             Prediction: {prediction ? 'Will happen' : 'Will not happen'}
         </Typography>
         <Typography variant='body2'>
-            Odd: {odd}
+            Odd: {prediction ? yesOdd : noOdd}
         </Typography>
         <Typography variant='body2'>
-            Pool: {pool}
+            Pool: {prediction ? yesPool : noPool}
         </Typography>
       {/* </DialogContentText> */}
       <TextField

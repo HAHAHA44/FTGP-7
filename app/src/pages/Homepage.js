@@ -47,7 +47,7 @@ export default function App() {
 const fetchData = () => {
   return new Promise((resolve) => {
     setTimeout(() => {
-      const newData = Array.from({ length: 10 }, (_, index) => ({name: `Will it rain tomorrow? ${index}`, participants: 20, odd: 4, createTime: "September 14, 2016", pool: 10000, img: 'https://p3.ssl.qhimg.com/t01f7d210920c0c73bd.jpg'}));
+      const newData = Array.from({ length: 10 }, (_, index) => ({name: `Will it rain tomorrow? ${index}`, participants: 20, yesOdd: 4, noOdd: 3, noPool: 200000, createTime: "September 14, 2016", yesPool: 10000, img: 'https://p3.ssl.qhimg.com/t01f7d210920c0c73bd.jpg'}));
       resolve(newData);
     }, 1000);
   });
