@@ -8,6 +8,14 @@ contract Main {
     
     address[] public Admins;
     address[] public GuessThemes;
+    address[] public Owners;
+    uint256[] public ThemeIds;
+    string[] public ThemeNames;
+    string[] public Descriptions;
+    uint256[] public InitialPools;
+    uint256[] public Odds;
+    string[] public Images;
+    string[] public Sources;
 
     // intial settings of the contract
     constructor(address[] memory _admins) {
@@ -37,79 +45,96 @@ contract Main {
     // remove an existing admin 备用
     // function removeAdmin(address _Admin) public checkAdmin{
     // }
-
+    
     // create a guess theme
     function createGuessTHeme(
-        string memory _name,
+        string memory _topic,
         string memory _description,
         uint256 initial_pool,
         uint256 _odd,
-        uint _options,
+        uint _numOfoptions,
+        uint _maximumBet,
+        uint _bettingTime,
         string memory _image,
         string memory _source) public {
-        uint256 guess_id = GuessThemes.length + 1;          // create a guess id automatically and transform it into 8-digit string
-        bytes32 myBytes32 = bytes32(guess_id);
-        bytes memory myBytes = abi.encodePacked(myBytes32);
-        string memory guess_id_str = string(myBytes);
-        while (bytes(guess_id_str).length < 8) {
-            guess_id_str = string(abi.encodePacked('0', guess_id_str));
-        }
-        
-        Betting newTheme = new Betting(          // create a new Betting contract
+        uint _BettingId = GuessThemes.length + 1;    
+
+        Betting newTheme = new Betting(   
             msg.sender,
-            guess_id_str,
-            _name,
+            _BettingId,
+            _topic,
             _description,
-            initial_pool,
-            _odd,
-            _options,
-            _image,
-            _source
+            2,                          // 暂时把numOfOptions设为2  
+            _maximumBet,
+            _bettingTime
         );
+
         GuessThemes.push(address(newTheme));
-     }
-    
-    // get adresss of all guess themes 备用
-    // function getAllGuessThemesAds() public view returns (address[] memory) {
-    //     return GuessThemes;
-    // }
-    
-   // get all guess themes
-    function getAllGuessThemes() public view returns (string[] memory) {
-        string[] memory allGuessThemes = new string[](GuessThemes.length);      // store required details of guess themes
-        for (uint i = 0; i < GuessThemes.length; i++) {
-            Betting _theme = Betting(GuessThemes[i]);
-            allGuessThemes[i] = _theme.getBriefDetails();            // need something like getBriefDetails() in Betting
-        }
-        return allGuessThemes;          //string[] 套 string[]，每个小的string[]是一个theme的信息
+        Owners.push(msg.sender);
+        ThemeIds.push(_BettingId);
+        ThemeNames.push(_topic);
+        Descriptions.push(_description);
+        InitialPools.push(initial_pool);
+        Odds.push(_odd);
+        Images.push(_image);
+        Sources.push(_source);
     }
 
-    // get addresses of user's guess themes
-    function getMyGuessThemesAds() internal view returns (address[] memory) {       // 暂定internal
-        address[] memory myGuessThemes = new address[](0);
-        for (uint i = 0; i < GuessThemes.length; i++) {
-            Betting _theme = Betting(GuessThemes[i]);
-            if (_theme.getOwner() == msg.sender){               // need something like getOwner() in Betting    
-                myGuessThemes.push(address(_theme));
+    // get all guess themes or user's themes
+    function getGuessThemes(address user, uint offset, uint limit) public view returns (        // user设为address(0)就是get all themes
+        uint[] memory ids, string[] memory names, string[] memory images) {                     // 输入user address就是get user's themes 
+        uint end = offset + limit > ThemeIds.length ? ThemeIds.length : offset + limit;
+        uint[] memory _ids = new uint[](end - offset);
+        string[] memory _names = new string[](end - offset);
+        string[] memory _images = new string[](end - offset);
+
+        uint j = 0;
+        for (uint i = offset; i < end; i++) {
+            if (user == address(0) || Owners[i] == user) {
+                _ids[j] = ThemeIds[i];
+                _names[j] = ThemeNames[i];
+                _images[j] = Images[i];
+                j++;
             }
         }
-        return myGuessThemes;
+
+        ids = new uint[](j);
+        names = new string[](j);
+        images = new string[](j);
+
+        if (user != address(0)) {
+            j = 0;
+            for (uint i = 0; i < ThemeIds.length; i++) {
+                if (Owners[i] == user) {
+                    j++;
+                }
+            }
+        }
+
+        for (uint i = 0; i < j; i++) {
+            ids[i] = _ids[i];
+            names[i] = _names[i];
+            images[i] = _images[i];
+        }
     }
     
-    // get user's guess themes
-    function getMyGuessThemes() public view returns (string[] memory) {
-        address[] memory myGuessThemes = getMyGuessThemesAds();
-        string[] memory myGuessThemesBrief = new string[](myGuessThemes.length);
-        for (uint i = 0; i < myGuessThemes.length; i++) {
-            Betting _theme = Betting(myGuessThemes[i]);
-            myGuessThemesBrief[i] = _theme.getBriefDetails();
+    // get theme details
+    function getGuessThemeDetails(uint _ThemeId) public view returns (string memory) {    // 暂定传ID
+        for (uint i = 0; i < ThemeIds.length; i++) {
+            if (ThemeIds[i] == _ThemeId) {
+                uint _idx = i;
+                break;
+            }        
         }
-        return myGuessThemesBrief;          // string[]
-    }
-
-  // get all details of a guess theme
-    function getGuessThemeDetails(address _guessTheme) public view returns (string memory) {   // 需要传入一个address
-        Betting _theme = Betting(_guessTheme);
-        return _theme.getDetails();         // string[]
+        (id, name, description, pool, odd, image, source) = (
+            _ThemeId,
+            ThemeNames[_idx],
+            Descriptions[_idx],
+            InitialPools[_idx],
+            Odds[_idx],
+            Images[_idx],
+            Sources[_idx]
+        );
+        return (id, name, description, pool, odd, image, source);
     }
 }
