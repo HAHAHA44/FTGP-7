@@ -118,23 +118,15 @@ contract Main {
         }
     }
     
-    // get theme details
-    function getGuessThemeDetails(uint _ThemeId) public view returns (string memory) {    // 暂定传ID
+   // get theme details
+    function getGuessThemeDetails(uint _ThemeId) public view returns (uint, string memory, string memory, uint256, uint256, string memory, string memory) {    // 暂定传ID
+        uint _idx;
         for (uint i = 0; i < ThemeIds.length; i++) {
             if (ThemeIds[i] == _ThemeId) {
-                uint _idx = i;
+                _idx = i;
                 break;
             }        
         }
-        (id, name, description, pool, odd, image, source) = (
-            _ThemeId,
-            ThemeNames[_idx],
-            Descriptions[_idx],
-            InitialPools[_idx],
-            Odds[_idx],
-            Images[_idx],
-            Sources[_idx]
-        );
-        return (id, name, description, pool, odd, image, source);
+        return (_ThemeId, ThemeNames[_idx], Descriptions[_idx], InitialPools[_idx], Odds[_idx], Images[_idx], Sources[_idx]);
     }
 }
