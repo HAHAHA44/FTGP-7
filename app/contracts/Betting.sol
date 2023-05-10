@@ -4,15 +4,12 @@ pragma solidity ^0.8.0;
 
 contract Betting {
     //合约构造参数
-    address public owner;
-    uint public BettingId;
-    uint public totalBets;
-    uint public bettingEnds;
+    address private owner;
+    uint private BettingId;
+    uint private  bettingEnds;
     bool private ended;
     string BettingTopic;
-    string description;
-    string source;
-    uint public bettingstarts;
+    uint private bettingstarts;
 
     
     
@@ -21,12 +18,12 @@ contract Betting {
     BetOrder[] private betOrders;
     //mapping(address => BetOrder[]) public betOrders;
     // mapping(address => uint256) public balances;
-    uint256 public balances;
     Bet[] private bets;
     //mapping(address => Bet[]) public bets;
     //当前的个选项倍率和订单ID
     uint[] public currentOdd; 
     uint[] public currentId;
+    uint[] public currentPool;
     
 
     //暂时没用
@@ -43,7 +40,6 @@ contract Betting {
     struct Bet {
         uint256 id;
         address payable user;
-        address payable banker;
         // string topic;
         uint256 betOption;
         uint256 betOrderId;
@@ -76,7 +72,6 @@ contract Betting {
         uint256 orderAmount;
         uint256 betsPlacedAmount;
         uint256 prospectiveIncome;
-        uint256 maxIncome;
         uint256 Income;
         uint256 Jointime;
         bool participation;
@@ -86,18 +81,15 @@ contract Betting {
     }
 
     // 构造器
-    constructor(address _owner,uint _BettingId, string memory _topic,
-    string memory _description, uint _numOfoptions, 
-    uint _bettingTime, string memory _source){
+    constructor(address _owner,uint _BettingId,string memory _topic, uint _numOfoptions, uint _bettingTime){
         owner = _owner;
         BettingId = _BettingId;
         BettingTopic = _topic;
-        description = _description;
-        source = _source;
         bettingstarts = block.timestamp;
         bettingEnds = block.timestamp + _bettingTime;
         currentOdd=new uint[](_numOfoptions);
         currentId=new uint[](_numOfoptions);
+        currentPool=new uint[](_numOfoptions);
     }
     // constructor(uint _numOfoptions) {
     //     // minimumBet = _minimumBet;
@@ -115,9 +107,9 @@ contract Betting {
 
         //由于gas费后面的创建要求将会提高
         require(!ended , "Bet finsihed");
-        // require(msg.value > 100 , "Insufficient deposit");
-        // require(msg.value % oddSetted == 0, "The amount and the odd are not divisible");
-        // require(oddSetted > 0 && oddSetted < 100, "Beyond the ratio range");
+        require(msg.value > 100 , "Insufficient deposit");
+        require(msg.value % oddSetted == 0, "The amount and the odd are not divisible");
+        require(oddSetted > 0 && oddSetted < 100, "Beyond the ratio range");
         
         // 构建订单
         betOrders.push(BetOrder({
@@ -129,7 +121,6 @@ contract Betting {
             orderAmount: msg.value,
             betsPlacedAmount: (msg.value * 10) / oddSetted,
             prospectiveIncome: 0,
-            maxIncome: (((msg.value * 10) / oddSetted)+ msg.value) * 97/100, // 3% commission
             Income: 0,
             Jointime: block.timestamp,
             participation: false,
@@ -142,35 +133,31 @@ contract Betting {
         if(currentOdd[optionSelected] == 0){
             currentOdd[optionSelected] = oddSetted;
             currentId[optionSelected] = betOrders.length;
+            currentPool[optionSelected] = (msg.value * 10) / oddSetted;
         }
         // 判断是否是最高倍率订单
         else{
             if(oddSetted > currentOdd[optionSelected]){
                currentOdd[optionSelected] = oddSetted;
                currentId[optionSelected] = betOrders.length;
+               currentPool[optionSelected] = (msg.value * 10) / oddSetted;
                }
         }
-        
-
-        //emit createOrder(betOrders.length,optionSelected, oddSetted);
     }
     
     function placeBet(address payable sender,uint256 optionSelected) public payable {
         require(!ended , "Bet finsihed");
-        // require(betOrders.length > 0, "Array is empty");
+        require(betOrders.length > 0, "Array is empty");
         // require(currentId[optionSelected] > 0, "Invalid bet option ID");
         BetOrder storage betOrder = betOrders[currentId[optionSelected]-1];
-        // require(!betOrder.settled, "Bet Order already settled");
-        // require(!betOrder.proceed, "Bet Order already proceed");
-        // require(msg.value > 0, "Invalid bet amount");
-        // require(msg.value <= betOrder.betsPlacedAmount, "Beyond the bet amount range");
-        // balances[msg.sender] += msg.value;
+        // require(!betOrder.settled, "already settled");
+        require(!betOrder.proceed, "already proceed");
+        require(msg.value > 0, "Invalid bet amount");
+        require(msg.value <= betOrder.betsPlacedAmount, "Beyond the bet amount range");
         bets.push(Bet({
             id: bets.length + 1,
             //投注者地址，结算的时候打钱到这里
             user: payable(sender),
-            //庄家地址
-            banker:payable(betOrder.user),
             //竞猜主题
             // topic: BettingTopic,
             //投注者的订单ID
@@ -238,7 +225,6 @@ contract Betting {
                         payable(betOrders[i].user).transfer((betOrders[i].betsPlacedAmount * betOrders[i].betsPlacedAmount)/10);
                         betOrders[i].settled = true;
                     }
-
                 }
             }
             else{
@@ -251,7 +237,6 @@ contract Betting {
             if(bets[i].settled == false){
                 if(bets[i].betOption == optionSelected){
                     payable(bets[i].user).transfer(bets[i].prospectiveIncome);
-                    balances = bets[i].user.balance;
                     bets[i].Income = bets[i].prospectiveIncome;
                     bets[i].settled = true;
                     }
@@ -283,69 +268,28 @@ contract Betting {
     * @dev 获取竞猜详情。
     * @return 竞猜标题和描述。
     */
-    function getbettingDetail() external view returns (string memory){
-        return (description);
-    }
+    // function getbettingDetail() external view returns (string memory){
+    //     return (description);
+    // }
     function getbettingName() external view returns (string memory){
         return (BettingTopic);
     }
 
-
-    // receive() external payable {
-
+    // function getOrder(uint i) external view  returns (BetOrder memory){
+    //     return (betOrders[i]);
     // }
-
-    // fallback() external  payable {}
-        
-    // function getAllBets() external view returns (Bet[] memory){
-    //     return (bets);
-    // }
-    // function getAllOrders() external view returns (BetOrder[] memory){
-    //     return (betOrders);
-    // }
-    // function getBet(uint i) external view returns (Bet memory){
-    //     return (bets[i]);
-    // }
-    function getOrder(uint i) external view  returns (BetOrder memory){
-        return (betOrders[i]);
-    }
-    // function getPlayerBet(address user) external view returns (uint256[] memory){
-    //     return (playerBets[user]);
-    // }
-    // function getPlayerOrder(address user) external view returns (uint256[] memory){
-    //     return (playerOrders[user]);
-    // }
-
+    
     function getend() external view returns (bool){
         return (ended);
     }
-    // function getMyBetsOrder(address sender,uint i) external view returns (string memory,uint,uint,uint,uint,uint,uint,uint){
-    //     BetOrder storage order =betOrders[playerOrders[sender][i]];
-    //     uint result = 3;
-    //     if(order.canceled == true){
-    //         result = 2;
-    //     }
-    //     else{
-    //         if(order.settled == true){
-    //             result = 1;
-    //         }
-    //         else{
-    //             result = 0;
-    //         }
-                
-    //     }
-    //     return (BettingTopic,order.odds,order.orderAmount,order.prospectiveIncome,order.option,result,order.Jointime,bettingstarts);
-    // }
-
-
-
-
-    // function getMyBetsOrder(address sender,uint i) external view returns (BetOrder memory){
-    //     return (betOrders[playerOrders[sender][i]]);
-    // }
+    
     function getOdds() external view returns (uint256[] memory){
         // BetOrder memory order =betOrders[playerOrders[sender][i]];
         return (currentOdd);
+    }
+    function getPools() external view returns (uint256[] memory){
+        // BetOrder memory order =betOrders[playerOrders[sender][i]];
+        return (currentPool);
     }
     function getMyBetsOrder(address sender,uint i) external view returns (uint256[] memory ){
         BetOrder memory order = betOrders[playerOrders[sender][i]-1];
@@ -396,97 +340,35 @@ contract Betting {
         info[6] = bettingstarts;
         return (info);
     }
-    // function getMyBetsOrder3(address sender,uint i) external view returns (uint256 ){
-    //     BetOrder storage order =betOrders[playerOrders[sender][i]];
-    //     return (order.prospectiveIncome);
-    // }
-    // function getMyBetsOrder4(address sender,uint i) external view returns (uint256){
-    //     BetOrder storage order =betOrders[playerOrders[sender][i]];
-    //     return (order.option);
-    // }
-    // function getMyBetsOrder5(address sender,uint i) external view returns (uint8 ){
-    //     BetOrder storage order =betOrders[playerOrders[sender][i]];
-    //     uint8 result = 3;
-    //     if(order.canceled == true){
-    //         result = 2;
-    //     }
-    //     else{
-    //         if(order.settled == true){
-    //             result = 1;
-    //         }
-    //         else{
-    //             result = 0;
-    //         }
-                
-    //     }
-    //     return (result);
-    // }
-
-    // function getMyBetsOrder6(address sender,uint i) external view returns (uint256){
-    //     BetOrder storage order =betOrders[playerOrders[sender][i]];
-    //     return (order.Jointime);
-    // }
-    // function getMyBetsOrder7() external view returns (uint256){
-    //     return (bettingstarts);
-    // }
-   
 
 
-
-    // function getMyBetsBets(address sender,uint i) external view returns (string memory,uint,uint,uint,uint,uint,uint,uint){
-    //     Bet storage bet =bets[playerBets[sender][i]];
-    //     uint result = 3;
-    //     if(bet.canceled == true){
-    //         result = 2;
-    //     }
-    //     else{
-    //         if(bet.settled == true){
-    //             result = 1;
-    //         }
-    //         else{
-    //             result = 0;
-    //         }
-                
-    //     }
-    //     return (BettingTopic,bet.odd,bet.amount,bet.prospectiveIncome,bet.betOption,result,bet.JoinTime,bettingstarts);
+    // function getPlayerBet(address user) external view returns (uint256[] memory){
+    //     return (playerBets[user]);
+    // }
+    // function getPlayerOrder(address user) external view returns (uint256[] memory){
+    //     return (playerOrders[user]);
     // }
     
+    // receive() external payable {
 
+    // }
 
-
-
-
-
-
-
+    // fallback() external  payable {}
+        
+    // function getAllBets() external view returns (Bet[] memory){
+    //     return (bets);
+    // }
+    // function getAllOrders() external view returns (BetOrder[] memory){
+    //     return (betOrders);
+    // }
+    // function getBet(uint i) external view returns (Bet memory){
+    //     return (bets[i]);
+    // }
     // function checkPlayerExists(address player) public view returns(bool) {
     //     for(uint i = 0; i < players.length; i++) {
     //         if(players[i] == player) return true;
     //     }
     //     return false;
     // }
-    // function bet(uint optionSelected) public payable {
-    //     require(optionSelected == 1 || optionSelected == 2, "Invalid option selection");
-    //     require(msg.value >= minimumBet && msg.value <= maximumBet);
-    //     if(!checkPlayerExists(msg.sender)) players.push(msg.sender);
-    //     players.push(payable(msg.sender));
-    //     playerBets[msg.sender] = msg.value;
-        
-    // }
-    
-
-    // function createBetOption(string memory name) public {
-    //     require(msg.value > 10, "Insufficient deposit");
-    //     betOptions.push(BetOption({
-    //         id: betOptions.length + 1,
-    //         name: name,
-    //         totalBets: 0,
-    //         totalBetAmount: 0,
-    //         outcome: 0,
-    //         settled: false
-    //     }));
-    //     emit BetOptionCreated(betOptions.length, name );
-    // }
-
 
 }

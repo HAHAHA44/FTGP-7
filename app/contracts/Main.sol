@@ -7,8 +7,6 @@ pragma solidity ^0.8.0;
 contract Main {
     
     address[] public GuessThemes;
-    address[] public Owners;
-    string[] public ThemeNames;
     ThemesDetail[] private ThemesDetails;
 
     //mapping(address => address[]) public Betaddresses; // Betaddresses 使用映射，什么地址发出的请求获得其地址的下注信息
@@ -75,10 +73,8 @@ contract Main {
             msg.sender,
             _BettingId,
             _topic,
-            _description,
             2,                          // 暂时把numOfOptions设为2  
-            _bettingTime,
-            _source
+            _bettingTime
         );
         
         GuessThemes.push(payable(address(newTheme)));
@@ -97,19 +93,21 @@ contract Main {
 
 
     // get all guess themes or user's themes
-    function getGuessThemes( uint offset, uint limit) external view returns (ThemesDetail[] memory, uint[][] memory){
+    function getGuessThemes( uint offset, uint limit) external view returns (ThemesDetail[] memory, uint[][] memory,uint[][] memory){
         uint end = offset + limit > GuessThemes.length ? GuessThemes.length : offset + limit;
         uint length = offset > end ? 0 : end - offset;
         ThemesDetail[] memory ThemesDetails_part = new ThemesDetail[](length);
         uint[][] memory odds_part = new uint[][](length);
+        uint[][] memory pools_part = new uint[][](length);
        
         uint j = 0;
         for (uint i = offset; i < end; i++) {
-             odds_part[j] = Betting(ThemesDetails[i].GuessThemes).getOdds();
+            odds_part[j] = Betting(ThemesDetails[i].GuessThemes).getOdds();
+            pools_part[j] = Betting(ThemesDetails[i].GuessThemes).getPools();
             ThemesDetails_part[j]= ThemesDetails[i];
             j++;
         }
-        return (ThemesDetails_part, odds_part);
+        return (ThemesDetails_part,odds_part,pools_part);
     }
     // get all guess themes or user's themes
     // function getGuessThemes(address user, uint offset, uint limit) public view returns (        // user设为address(0)就是get all themes
@@ -159,26 +157,12 @@ contract Main {
     function createOrder(uint BetSelected, uint optionSelected, uint oddSetted) public payable {
 
         address payable target = payable(GuessThemes[BetSelected]); // 目标合约地址
-        // uint256 amount = msg.value;     // 需要转移的 ETH 数量
-
-        // 将 ETH 转移到目标合约
-        // target.transfer(amount);
-        // (bool success, ) = target.call{value: amount}("");
-        // require(success, "Transfer failed");
-
-        // 调用目标合约的方法
-        // (bool success2, ) = target.call{value: amount}(abi.encodeWithSignature("createOrder(payable address,uint,uint)",msg.sender, optionSelected, oddSetted));
-        // require(success2, "Method call failed");
-        Betting(target).createOrder{value: msg.value}(payable (msg.sender),optionSelected,oddSetted); //后可改成地址搜索
+        Betting(target).createOrder{value: msg.value}(payable (msg.sender),optionSelected,oddSetted); 
         playerOrders[msg.sender].push(BetSelected);
     }
     function placeBet(uint BetSelected, uint256 optionSelected) public payable {
-        address payable target = payable(GuessThemes[BetSelected]); // 目标合约地址
-        uint256 amount = msg.value;     // 需要转移的 ETH 数量
-
-        // 将 ETH 转移到目标合约
-        target.transfer(amount);
-        Betting(GuessThemes[BetSelected]).placeBet{value: msg.value}(payable (msg.sender) ,optionSelected); //后可改成地址搜索
+        address payable target = payable(GuessThemes[BetSelected]);
+        Betting(target).placeBet{value: msg.value}(payable (msg.sender) ,optionSelected); 
         playerBets[msg.sender].push(BetSelected);
     }
 
