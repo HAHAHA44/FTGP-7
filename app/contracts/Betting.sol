@@ -1,27 +1,22 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-
 contract Betting {
     //合约构造参数
     address public owner;
-    uint public BettingId;
     uint public totalBets;
     uint public minimumBet;
     uint public maximumBet;
     uint public bettingEnds;
     bool public ended;
-    string BettingTopic;
-    string description;
-    
     
     //订单和下注单对象数组
     // BetOption[] public betOptions;
-    BetOrder[] private betOrders;
+    BetOrder[] public betOrders;
     //mapping(address => BetOrder[]) public betOrders;
     // mapping(address => uint256) public balances;
     uint256 public balances;
-    Bet[] private bets;
+    Bet[] public bets;
     //mapping(address => Bet[]) public bets;
     //当前的个选项倍率和订单ID
     uint[] public currentOdd; 
@@ -31,19 +26,16 @@ contract Betting {
     //暂时没用
     //address[] public players;
     //address payable[] public players;
-    mapping(address => uint[]) public playerBets; // playerBets 使用映射，什么地址发出的请求获得其地址的下注信息
-    mapping(address => uint[]) public playerOrders; // playerOrders 使用映射，什么地址发出的请求获得其地址的下庄信息
+    //mapping(address => uint) public playerBets;
     //address payable[] public winners;
     // uint public totalAmount;
     // uint public winningAmount;
 
-    //初始化 （不知道多次调用是否需要，暂时没写）
 
     struct Bet {
         uint256 id;
         address payable user;
         address payable banker;
-        // string topic;
         uint256 betOption;
         uint256 betOrderId;
         uint256 odd;
@@ -51,7 +43,6 @@ contract Betting {
         uint256 prospectiveIncome;
         uint256 Income;
         bool settled;
-        bool canceled;
     }
 
     // struct BetOption {
@@ -67,7 +58,6 @@ contract Betting {
 
     struct BetOrder {
         uint256 id;
-        // string topic;
         uint option;
         address payable user;
         uint256 odds;
@@ -79,34 +69,22 @@ contract Betting {
         bool participation;
         bool settled;
         bool proceed;
-        bool canceled;
     }
 
     // 构造器
-    constructor(address _owner,uint _BettingId, string memory _topic,string memory _description, uint _numOfoptions, uint _maximumBet, uint _bettingTime){
-        owner = _owner;
-        BettingId = _BettingId;
-        BettingTopic = _topic;
-        description = _description;
-        maximumBet = _maximumBet;
-        bettingEnds = block.timestamp + _bettingTime;
+    // constructor(uint _minimumBet, uint _maximumBet, uint _bettingTime, uint _numOfoptions)
+    constructor(uint _numOfoptions) {
+        owner = msg.sender;
+        // minimumBet = _minimumBet;
+        // maximumBet = _maximumBet;
+        // bettingEnds = block.timestamp + _bettingTime;
+        // betRatio = _betRatio;
+        ended = false;
         currentOdd=new uint[](_numOfoptions);
         currentId=new uint[](_numOfoptions);
     }
-    // constructor(uint _numOfoptions) {
-    //     // minimumBet = _minimumBet;
-    //     // maximumBet = _maximumBet;
-    //     // bettingEnds = block.timestamp + _bettingTime;
-    //     // betRatio = _betRatio;
-    //     // BettingTopic = _topic;
-
-    //     ended = false;
-    //     currentOdd=new uint[](_numOfoptions);
-    //     currentId=new uint[](_numOfoptions);
-    // }
     
     function createOrder(uint optionSelected, uint oddSetted) public payable {
-
         //由于gas费后面的创建要求将会提高
         require(!ended , "Bet finsihed");
         require(msg.value > 100 , "Insufficient deposit");
@@ -116,23 +94,22 @@ contract Betting {
         // 构建订单
         betOrders.push(BetOrder({
             id: betOrders.length + 1,
-            // topic: BettingTopic,
+            //id: betOrders[msg.sender].length + 1,
+            //ids:betOrders.length + 1,
             user: payable(msg.sender),
             option: optionSelected,
             odds: oddSetted, //1=0.1倍 因为合约没有浮点数
             orderAmount: msg.value,
-            betsPlacedAmount: (msg.value * 10) / oddSetted,
+            betsPlacedAmount: (msg.value*10)/oddSetted,
             prospectiveIncome: 0,
-            maxIncome: (((msg.value * 10) / oddSetted)+ msg.value) * 97/100, // 3% commission
+            maxIncome: (((msg.value*10)/oddSetted)+ msg.value)*97/100, // 3% commission
             Income: 0,
             participation: false,
             settled: false,
-            proceed: false,
-            canceled: false
+            proceed: false
         }));
-        playerOrders[msg.sender].push(betOrders.length);
         // 判断是否有订单
-        if(currentOdd[optionSelected] == 0){
+        if(currentOdd[optionSelected]== 0){
             currentOdd[optionSelected] = oddSetted;
             currentId[optionSelected] = betOrders.length;
         }
@@ -164,8 +141,6 @@ contract Betting {
             user: payable(msg.sender),
             //庄家地址
             banker:payable(betOrder.user),
-            //竞猜主题
-            // topic: BettingTopic,
             //投注者的订单ID
             betOrderId: betOrder.id,
             //投注者的选择
@@ -175,22 +150,18 @@ contract Betting {
             //下注金额
             amount: msg.value,
             //预计收益
-            prospectiveIncome: (msg.value/10 * betOrder.odds+ msg.value) * 97/100,
+            prospectiveIncome: (msg.value/10 * betOrder.odds+ msg.value) *97/100,
             Income: 0,
             //是否结算
-            settled :false,
-            canceled: false
+            settled :false
         }));
-
-        playerBets[msg.sender].push(bets.length);
         betOrder.participation = true;
-
         if(betOrder.prospectiveIncome == 0){
-            betOrder.prospectiveIncome = betOrder.orderAmount * 97/100;
-            betOrder.prospectiveIncome += msg.value * 97/100;
+            betOrder.prospectiveIncome = betOrder.orderAmount*97/100;
+            betOrder.prospectiveIncome += msg.value*97/100;
         }
         else{
-            betOrder.prospectiveIncome += msg.value * 97/100;
+            betOrder.prospectiveIncome += msg.value*97/100;
         }
         //寻找最大赔率订单索引 
         betOrder.betsPlacedAmount -= msg.value;
@@ -210,19 +181,15 @@ contract Betting {
             currentOdd[optionSelected] = maxOdd;
         }
     }
-    //结算（后续输入参数会加）
+    //结算
     function settle(uint256 optionSelected) public payable{
-        // requirement
-        require(!ended , "Bet finsihed");
-
-
         for(uint i=0 ;i< betOrders.length;i++){
             //待修改，目前可用
             if(betOrders[i].participation == true){
                 if(betOrders[i].option != optionSelected){
                     payable(betOrders[i].user).transfer(betOrders[i].prospectiveIncome);
                     betOrders[i].Income = betOrders[i].prospectiveIncome;
-                    betOrders[i].settled = true;
+                    betOrders[i].settled =true;
                 }
                 else{
                     // 订单被部分投注
@@ -235,71 +202,22 @@ contract Betting {
             else{
                 //全额退款可能考虑到gas费，目前100%退款
                 payable(betOrders[i].user).transfer(betOrders[i].orderAmount);
-                betOrders[i].settled = true;
+                betOrders[i].settled =true;
             }
         }
-        for(uint i=0 ;i < bets.length;i++){
+        for(uint i=0 ;i< bets.length;i++){
             if(bets[i].settled == false){
                 if(bets[i].betOption == optionSelected){
                     payable(bets[i].user).transfer(bets[i].prospectiveIncome);
                     balances = bets[i].user.balance;
                     bets[i].Income = bets[i].prospectiveIncome;
-                    bets[i].settled = true;
+                    bets[i].settled =true;
                     }
             }
         }
-        ended =true;       
+        ended =true;
+        
     }
-    //  取消这次竞猜
-    function cancel() public {
-        //requirement
-        require(!ended , "Bet finsihed");
-        if(betOrders.length > 0){
-            for(uint i = 0 ;i < betOrders.length;i++){
-                payable(betOrders[i].user).transfer(betOrders[i].orderAmount);
-                betOrders[i].settled = true;
-            }
-        }
-        if(bets.length > 0){
-            for(uint i = 0 ;i < bets.length;i++){
-                payable(bets[i].user).transfer(bets[i].amount);
-                bets[i].settled = true;
-            }
-        }
-        ended =true; 
-    }
-    /**
-    * @dev 获取竞猜详情。
-    * @return 竞猜标题和描述。
-    */
-    function getbettingDetail() external view returns (string memory, string memory){
-        return (BettingTopic,description);
-    }
-
-    function getAllBets() external view returns (Bet[] memory){
-        return (bets);
-    }
-    function getAllOrders() external view returns (BetOrder[] memory){
-        return (betOrders);
-    }
-    function getBet(uint i) external view returns (Bet memory){
-        return (bets[i]);
-    }
-    function getOrder(uint i) external view returns (BetOrder memory){
-        return (betOrders[i]);
-    }
-    function getPlayerBet(address user) external view returns (uint256[] memory){
-        return (playerBets[user]);
-    }
-     function getPlayerOrder(address user) external view returns (uint256[] memory){
-        return (playerOrders[user]);
-    }
-
-
-
-
-
-
 
     // function checkPlayerExists(address player) public view returns(bool) {
     //     for(uint i = 0; i < players.length; i++) {

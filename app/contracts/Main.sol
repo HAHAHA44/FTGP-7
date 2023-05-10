@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Kdentifier: MIT
 
 import './Betting.sol';
 
@@ -118,7 +118,7 @@ contract Main {
         }
     }
     
-    // get theme details
+   // get theme details
     function getGuessThemeDetails(uint _ThemeId) public view returns (uint, string memory, string memory, uint256, uint256, string memory, string memory) {    // 暂定传ID
         uint _idx;
         for (uint i = 0; i < ThemeIds.length; i++) {
