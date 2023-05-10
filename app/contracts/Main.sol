@@ -38,6 +38,7 @@ contract Main {
         string Descriptions;
         string Sources;
         uint startTime;
+        uint endTime;
         
     }
 
@@ -85,7 +86,8 @@ contract Main {
             ThemeNames: _topic,
             Descriptions: _description,
             Sources: _source,
-            startTime: block.timestamp
+            startTime: block.timestamp,
+            endTime:  block.timestamp + _bettingTime
         }));
 
         
