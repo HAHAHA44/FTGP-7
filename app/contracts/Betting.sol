@@ -7,8 +7,6 @@ contract Betting {
     address public owner;
     uint public BettingId;
     uint public totalBets;
-    uint public minimumBet;
-    uint public maximumBet;
     uint public bettingEnds;
     bool private ended;
     string BettingTopic;
@@ -89,13 +87,12 @@ contract Betting {
 
     // 构造器
     constructor(address _owner,uint _BettingId, string memory _topic,
-    string memory _description, uint _numOfoptions, uint _maximumBet, 
+    string memory _description, uint _numOfoptions, 
     uint _bettingTime, string memory _source){
         owner = _owner;
         BettingId = _BettingId;
         BettingTopic = _topic;
         description = _description;
-        maximumBet = _maximumBet;
         source = _source;
         bettingstarts = block.timestamp;
         bettingEnds = block.timestamp + _bettingTime;
@@ -346,7 +343,7 @@ contract Betting {
     // function getMyBetsOrder(address sender,uint i) external view returns (BetOrder memory){
     //     return (betOrders[playerOrders[sender][i]]);
     // }
-    function getMyBetsOrder1() external view returns (uint256[] memory){
+    function getOdds() external view returns (uint256[] memory){
         // BetOrder memory order =betOrders[playerOrders[sender][i]];
         return (currentOdd);
     }
