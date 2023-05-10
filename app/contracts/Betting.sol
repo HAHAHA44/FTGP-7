@@ -83,27 +83,27 @@ contract Betting {
     }
 
     // 构造器
-    // constructor(address _owner,uint _BettingId, string memory _topic,string memory _description, uint _numOfoptions, uint _maximumBet, uint _bettingTime){
-    //     owner = _owner;
-    //     BettingId = _BettingId;
-    //     BettingTopic = _topic;
-    //     description = _description;
-    //     maximumBet = _maximumBet;
-    //     bettingEnds = block.timestamp + _bettingTime;
-    //     currentOdd=new uint[](_numOfoptions);
-    //     currentId=new uint[](_numOfoptions);
-    // }
-    constructor(uint _numOfoptions) {
-        // minimumBet = _minimumBet;
-        // maximumBet = _maximumBet;
-        // bettingEnds = block.timestamp + _bettingTime;
-        // betRatio = _betRatio;
-        // BettingTopic = _topic;
-
-        ended = false;
+    constructor(address _owner,uint _BettingId, string memory _topic,string memory _description, uint _numOfoptions, uint _maximumBet, uint _bettingTime){
+        owner = _owner;
+        BettingId = _BettingId;
+        BettingTopic = _topic;
+        description = _description;
+        maximumBet = _maximumBet;
+        bettingEnds = block.timestamp + _bettingTime;
         currentOdd=new uint[](_numOfoptions);
         currentId=new uint[](_numOfoptions);
     }
+    // constructor(uint _numOfoptions) {
+    //     // minimumBet = _minimumBet;
+    //     // maximumBet = _maximumBet;
+    //     // bettingEnds = block.timestamp + _bettingTime;
+    //     // betRatio = _betRatio;
+    //     // BettingTopic = _topic;
+
+    //     ended = false;
+    //     currentOdd=new uint[](_numOfoptions);
+    //     currentId=new uint[](_numOfoptions);
+    // }
     
     function createOrder(uint optionSelected, uint oddSetted) public payable {
 
