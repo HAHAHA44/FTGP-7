@@ -189,20 +189,27 @@ contract Betting {
         }
         //寻找最大赔率订单索引 
         betOrder.betsPlacedAmount -= msg.value;
+
         if(betOrder.betsPlacedAmount == 0){
             uint maxOdd = 0;
             uint maxId = 0;
+            uint maxPool = 0;
             betOrder.proceed = true;
             for(uint i=0 ;i< betOrders.length;i++){
                 if(betOrders[i].proceed == false){
                     if( betOrders[i].odds > maxOdd){
                         maxOdd = betOrders[i].odds;
                         maxId = betOrders[i].id;
+                        maxPool = betOrders[i].betsPlacedAmount;
                     }
                 }
             }
             currentId[optionSelected] = maxId;
             currentOdd[optionSelected] = maxOdd;
+            currentPool[optionSelected] = maxPool;
+        }
+        else {
+            currentPool[optionSelected] = betOrder.betsPlacedAmount;
         }
     }
     //结算（后续输入参数会加）
