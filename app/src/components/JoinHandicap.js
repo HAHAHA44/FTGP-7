@@ -7,13 +7,14 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { Typography } from '@mui/material';
-
+import { placeBet } from '../eth/index'
 export const JoinHandicap = (props) => {
     const { open, onClose } = props;
-    const {name, createTime, prediction, participants, yesPool, yesOdd, noOdd, noPool} = props.data;
+    const {name, createTime, prediction, participants, yesPool, yesOdd, noOdd, noPool, id} = props.data;
     const [betAmount, setBetAmount] = React.useState(100);
     const onGo = () => {
         console.log("You will join this handicap with bet amount", betAmount);
+        placeBet(betAmount, id, prediction ? 1 : 0);
         onClose();
     }
 
@@ -41,7 +42,7 @@ export const JoinHandicap = (props) => {
         autoFocus
         margin="dense"
         id="name"
-        label="Bet Amount(Wei)"
+        label="Bet Amount(Gwei)"
         type="text"
         fullWidth
         variant="standard"

@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 
 import './Betting.sol';
-
 pragma solidity ^0.8.0;
 
+
 contract Main {
-    
+
     address[] public GuessThemes;
     ThemesDetail[] private ThemesDetails;
 
@@ -13,13 +13,16 @@ contract Main {
     mapping(address => uint[]) public playerOrders; // playerOrders 使用映射，什么地址发出的请求获得其地址的下庄信息
     mapping(address => uint[]) public playerBets;
 
+    address[] public Admins;
+
     // intial settings of the contract
     constructor(address[] memory _admins) {
-        // require(_admins.length > 0, 'At least one admin is required.');
-        // for (uint i = 0; i < _admins.length; i++) {         // add all admins to Admins array 以数组形式传Admins进去
-        //     Admins.push(_admins[i]);
-        // }   
+        require(_admins.length > 0, 'admin required.');
+        for (uint i = 0; i < _admins.length; i++) {         // add all admins to Admins array 以数组形式传Admins进去
+            Admins.push(_admins[i]);
+        }
     }
+
     struct BetDetail {
         string ThemeNames;
         uint odds;
@@ -39,21 +42,21 @@ contract Main {
         string Sources;
         uint startTime;
         uint endTime;
-        
+        uint id;
     }
 
     // check if is an admin
-    // modifier checkAdmin() {
-    //     bool isAdmin = false;
-    //     for (uint i = 0; i < Admins.length; i++) {
-    //         if (msg.sender == Admins[i]) {
-    //             isAdmin = true;
-    //             break;
-    //         }
-    //     }
-    //     require(isAdmin, 'Your account has no permission.');
-    //     _;
-    // }
+    modifier checkAdmin() {
+        bool isAdmin = false;
+        for (uint i = 0; i < Admins.length; i++) {
+            if (msg.sender == Admins[i]) {
+                isAdmin = true;
+                break;
+            }
+        }
+        require(isAdmin, 'Your account has no permission.');
+        _;
+    }
 
     //  add a new admin 备用
     // function addAdmin(address _Admin) public checkAdmin{
@@ -69,7 +72,7 @@ contract Main {
         string memory _description,
         uint _bettingTime,
         string memory _source) public {   
-        uint _BettingId = GuessThemes.length + 1;    
+        uint _BettingId = GuessThemes.length;    
         Betting newTheme = new Betting(   
             msg.sender,
             _BettingId,
@@ -87,7 +90,8 @@ contract Main {
             Descriptions: _description,
             Sources: _source,
             startTime: block.timestamp,
-            endTime:  block.timestamp + _bettingTime
+            endTime:  block.timestamp + _bettingTime,
+            id: _BettingId
         }));
 
         
@@ -111,50 +115,6 @@ contract Main {
         }
         return (ThemesDetails_part,odds_part,pools_part);
     }
-    // get all guess themes or user's themes
-    // function getGuessThemes(address user, uint offset, uint limit) public view returns (        // user设为address(0)就是get all themes
-    //     uint[] memory ids, string[] memory names, string[] memory images) {                     // 输入user address就是get user's themes 
-    //     uint end = offset + limit > GuessThemes.length ? GuessThemes.length : offset + limit;
-    //     string[] memory _names = new string[](end - offset);
-    //     string[] memory _images = new string[](end - offset);
-
-    //     uint j = 0;
-    //     for (uint i = offset; i < end; i++) {
-    //         if (user == address(0) || Owners[i] == user) {
-    //             _names[j] = ThemeNames[i];
-    //             j++;
-    //         }
-    //     }
-
-    //     ids = new uint[](j);
-    //     names = new string[](j);
-
-    //     if (user != address(0)) {
-    //         j = 0;
-    //         for (uint i = 0; i < GuessThemes.length; i++) {
-    //             if (Owners[i] == user) {
-    //                 j++;
-    //             }
-    //         }
-    //     }
-
-    //     for (uint i = 0; i < j; i++) {
-    //         names[i] = _names[i];
-    //         images[i] = _images[i];
-    //     }
-    // }
-    
-   // get theme details
-    // function getGuessThemeDetails(uint _ThemeId) public view returns (uint, string memory, string memory, uint256, uint256, string memory, string memory) {    // 暂定传ID
-    //     uint _idx;
-    //     for (uint i = 0; i < ThemeIds.length; i++) {
-    //         if (ThemeIds[i] == _ThemeId) {
-    //             _idx = i;
-    //             break;
-    //         }        
-    //     }
-    //     return (_ThemeId, ThemeNames[_idx], Descriptions[_idx], InitialPools[_idx], Odds[_idx], Images[_idx], Sources[_idx]);
-    // }
 
     function createOrder(uint BetSelected, uint optionSelected, uint oddSetted) public payable {
 
@@ -166,6 +126,16 @@ contract Main {
         address payable target = payable(GuessThemes[BetSelected]);
         Betting(target).placeBet{value: msg.value}(payable (msg.sender) ,optionSelected); 
         playerBets[msg.sender].push(BetSelected);
+    }
+
+    function settle(uint BetSelected, uint256 optionSelected) public payable checkAdmin() {
+        address payable target = payable(GuessThemes[BetSelected]);
+        Betting(target).settle(optionSelected);
+    }
+
+    function cancel(uint BetSelected) public payable checkAdmin() {
+        address payable target = payable(GuessThemes[BetSelected]);
+        Betting(target).cancel();
     }
 
 

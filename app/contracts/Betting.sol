@@ -10,7 +10,7 @@ contract Betting {
     bool private ended;
     string BettingTopic;
     uint private bettingstarts;
-
+    address private mainAddr;
     
     
     //订单和下注单对象数组
@@ -81,7 +81,7 @@ contract Betting {
     }
 
     // 构造器
-    constructor(address _owner,uint _BettingId,string memory _topic, uint _numOfoptions, uint _bettingTime){
+    constructor(address _owner, uint _BettingId, string memory _topic, uint _numOfoptions, uint _bettingTime){
         owner = _owner;
         BettingId = _BettingId;
         BettingTopic = _topic;
@@ -90,6 +90,7 @@ contract Betting {
         currentOdd=new uint[](_numOfoptions);
         currentId=new uint[](_numOfoptions);
         currentPool=new uint[](_numOfoptions);
+        mainAddr = msg.sender;
     }
     // constructor(uint _numOfoptions) {
     //     // minimumBet = _minimumBet;
@@ -110,6 +111,7 @@ contract Betting {
         require(msg.value > 100 , "Insufficient deposit");
         require(msg.value % oddSetted == 0, "The amount and the odd are not divisible");
         require(oddSetted > 0 && oddSetted < 100, "Beyond the ratio range");
+        require(msg.sender == mainAddr, "call by main");
         
         // 构建订单
         betOrders.push(BetOrder({
@@ -147,13 +149,16 @@ contract Betting {
     
     function placeBet(address payable sender,uint256 optionSelected) public payable {
         require(!ended , "Bet finsihed");
-        require(betOrders.length > 0, "Array is empty");
+        // require(betOrders.length > 0, "Array is empty");
         // require(currentId[optionSelected] > 0, "Invalid bet option ID");
-        BetOrder storage betOrder = betOrders[currentId[optionSelected]-1];
+        BetOrder memory betOrder = betOrders[currentId[optionSelected]-1];
         // require(!betOrder.settled, "already settled");
-        require(!betOrder.proceed, "already proceed");
-        require(msg.value > 0, "Invalid bet amount");
-        require(msg.value <= betOrder.betsPlacedAmount, "Beyond the bet amount range");
+        // already proceed
+        require(!betOrder.proceed, "ap");
+        // Beyond the bet amount range
+        require(msg.value <= betOrder.betsPlacedAmount, "BTBAR");
+        require(msg.sender == mainAddr, "cbm");
+
         bets.push(Bet({
             id: bets.length + 1,
             //投注者地址，结算的时候打钱到这里
@@ -213,9 +218,10 @@ contract Betting {
         }
     }
     //结算（后续输入参数会加）
-    function settle(uint256 optionSelected) public payable{
+    function settle(uint256 optionSelected) public payable {
         // requirement
-        require(!ended , "Bet finsihed");
+        require(!ended , "f");
+        require(msg.sender == mainAddr, "cbm");
 
 
         for(uint i=0 ;i< betOrders.length;i++){
@@ -254,7 +260,9 @@ contract Betting {
     //  取消这次竞猜
     function cancel() public {
         //requirement
-        require(!ended , "Bet finsihed");
+        require(!ended , "f");
+        require(msg.sender == mainAddr, "cbm");
+
         if(betOrders.length > 0){
             for(uint i = 0 ;i < betOrders.length;i++){
                 payable(betOrders[i].user).transfer(betOrders[i].orderAmount);

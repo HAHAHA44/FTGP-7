@@ -6,6 +6,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
+import { myBets } from '../eth';
 
 function createData(name, participants, odd, createTime, pool, betAmount, joinTime, result, prediction) {
   return { name, participants, odd, createTime, pool, betAmount, joinTime, result, prediction };
@@ -17,6 +18,19 @@ const rows = [
 ];
 
 export default function MyBets() {
+
+  const fetchData = () => {
+    return new Promise((resolve) => {
+      myBets().then((res) => {
+        resolve(res);
+      })
+    });
+  };
+
+  React.useEffect(() => {
+    fetchData();
+  }, []);
+
   return (
     <TableContainer component={Paper} style={{marginTop: 20}}>
       <Table sx={{ minWidth: 650 }} aria-label="simple table">

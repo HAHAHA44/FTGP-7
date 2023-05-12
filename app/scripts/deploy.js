@@ -6,47 +6,46 @@
 // global scope, and execute the script.
 const hre = require("hardhat");
 const path = require("path");
-
+const admins = require("../admins.json").admins
 
 async function main() {
   const currentTimestampInSeconds = Math.round(Date.now() / 1000);
-  const unlockTime = currentTimestampInSeconds + 60;
 
   const fs = require("fs");
   const contractsDir = path.join(__dirname, "..", "src", "artifacts");
 
-  const lockedAmount = hre.ethers.utils.parseEther("0.001");
-
-  const Lock = await hre.ethers.getContractFactory("Lock");
-  const lock = await Lock.deploy(unlockTime, { value: lockedAmount });
-
-  await lock.deployed();
-
-  console.log(
-    `Lock with ${ethers.utils.formatEther(
-      lockedAmount
-    )}ETH and unlock timestamp ${unlockTime} deployed to ${lock.address}`
-  );
-
-  const coinflip = await deployBet();
+  const main = await deployMain();
 
   fs.writeFileSync(
     path.join(contractsDir, "contract-address.json"),
-    JSON.stringify({ CoinFlip: coinflip.address, Lock: lock.address }, undefined, 2)
+    JSON.stringify({ Main: main.address }, undefined, 2)
   );
 }
 
-async function deployBet() {
-  const CoinFlip = await hre.ethers.getContractFactory("CoinFlip");
-  const coinflip = await CoinFlip.deploy();
+async function deployMain() {
+  const Main = await hre.ethers.getContractFactory("Main");
+  const main = await Main.deploy(admins);
 
-  await coinflip.deployed();
+  await main.deployed();
 
   console.log(
-    `coinflip deployed to ${coinflip.address}`
+    `main deployed to ${main.address}`
   );
 
-  return coinflip;
+  return main;
+}
+
+async function deployBetting() {
+  const Betting = await hre.ethers.getContractFactory("Betting");
+  const betting = await Betting.deploy();
+
+  await betting.deployed();
+
+  console.log(
+    `Betting deployed to ${betting.address}`
+  );
+
+  return betting;
 }
 
 // We recommend this pattern to be able to use async/await everywhere

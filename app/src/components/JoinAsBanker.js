@@ -7,15 +7,21 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { Radio, Typography, RadioGroup, FormControl, FormLabel, FormControlLabel } from '@mui/material';
-
+import { createOrder } from "../eth/index";
 export const JoinAsBanker = (props) => {
     const { open, onClose } = props;
-    const {name} = props.data;
+    const {name, id, desc} = props.data;
     const [prediction, setPrediction] = React.useState(true);
     const [pool, setPool] = React.useState(100);
     const [odd, setOdd] = React.useState(4);
     const onGo = () => {
-        console.log("You will join this bet theme as a banker", prediction, pool, odd);
+        console.log("You will join this bet theme as a banker", prediction, pool, odd, typeof prediction);
+        createOrder(
+          pool,
+          id,
+          prediction ? 0 : 1,
+          odd
+        )
         onClose();
     }
 
@@ -27,12 +33,15 @@ export const JoinAsBanker = (props) => {
             You will join this bet theme as a banker:
         </Typography>
         <Typography variant='body2'>
-            {name}
+            Theme: {name}
+        </Typography>
+        <Typography variant='body2'>
+            {desc}
         </Typography>
       {/* </DialogContentText> */}
       <FormControl component="fieldset">
             <FormLabel component="legend">Your Prediction</FormLabel>
-            <RadioGroup value={prediction} aria-label="gender" name="radio-buttons-group" onChange={e => setPrediction(e.target.value)}>
+            <RadioGroup value={prediction} aria-label="gender" name="radio-buttons-group" onChange={e => setPrediction(e.target.value === "true" ? true : false)}>
                 <FormControlLabel value={true} control={<Radio />} label="Will happen" />
                 <FormControlLabel value={false} control={<Radio />} label="Will not happen" />
             </RadioGroup>
@@ -41,7 +50,7 @@ export const JoinAsBanker = (props) => {
         autoFocus
         margin="dense"
         id="name"
-        label="pool"
+        label="pool(Gwei)"
         type="text"
         fullWidth
         variant="standard"

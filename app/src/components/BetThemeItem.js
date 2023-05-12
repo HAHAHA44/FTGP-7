@@ -62,7 +62,7 @@ export default function RecipeReviewCard(props) {
     setExpanded(!expanded);
   };
 
-  const {name, createTime, img, participants, yesPool, yesOdd, noPool, noOdd } = props.data;
+  const {name, createTime, img, desc, source, yesPool, yesOdd, noPool, noOdd } = props.data;
   return (
     <Card sx={{ maxWidth: 345 }}>
       {/* <CardHeader
@@ -144,21 +144,24 @@ export default function RecipeReviewCard(props) {
             Pool: {pool}
           </Typography> */}
           <Typography variant='body2' paragraph>
-            Participants: {participants}
+            {desc}
           </Typography>
           <Typography variant='body2' paragraph>
-            Make your prediction:
+            Source: {source}
+          </Typography>
+          <Typography variant='body2' paragraph>
+            Make your prediction (gwei):
           </Typography>
           <ButtonGroup variant="contained" color='inherit' aria-label="outlined primary button group" fullWidth size='medium' orientation="vertical">
-            <Button startIcon={<CheckCircleIcon></CheckCircleIcon>} color='success' onClick={() => {handleJoinHandicapOpen(true)}}>
+            <Button startIcon={<CheckCircleIcon></CheckCircleIcon>} color='success' onClick={() => {yesOdd === 0 ? handleJoinBankerOpen() : handleJoinHandicapOpen(true)}}>
               {/* Yes <br></br> */}
-              Odd: {yesOdd} &nbsp;
-              Pool: {yesPool}
+              {yesOdd === 0 ? "No Banker" : <React.Fragment>Odd: {yesOdd} &nbsp;
+              Pool: {yesPool}</React.Fragment>}
             </Button>
-            <Button startIcon={<CancelIcon></CancelIcon>} color='error' onClick={() => {handleJoinHandicapOpen(false)}}>
+            <Button startIcon={<CancelIcon></CancelIcon>} color='error' onClick={() => {noOdd === 0 ? handleJoinBankerOpen() : handleJoinHandicapOpen(false)}}>
               {/* No <br></br> */}
-              Odd: {noOdd} &nbsp;
-              Pool: {noPool}
+              {noOdd === 0 ? "No Banker": <React.Fragment>Odd: {noOdd} &nbsp;
+              Pool: {noPool}</React.Fragment>}
             </Button>
             <Button startIcon={<AccountBalanceIcon></AccountBalanceIcon>} color='info' onClick={handleJoinBankerOpen}>Join as Banker</Button>
           </ButtonGroup>
