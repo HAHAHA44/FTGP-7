@@ -299,13 +299,21 @@ contract Betting {
     }
     
     function getOdds() external view returns (uint256[] memory){
-        // BetOrder memory order =betOrders[playerOrders[sender][i]];
         return (currentOdd);
     }
     function getPools() external view returns (uint256[] memory){
-        // BetOrder memory order =betOrders[playerOrders[sender][i]];
         return (currentPool);
     }
+
+    function getplayerOrderslength(address sender) external view returns (uint256){
+        return (playerOrders[sender].length);
+    }
+    function getplayerBetslength(address sender) external view returns (uint256){
+        return (playerBets[sender].length);
+    }
+
+
+
     function getMyBetsOrder(address sender,uint i) external view returns (uint256[] memory ){
         BetOrder memory order = betOrders[playerOrders[sender][i]-1];
         uint256 result = 3;

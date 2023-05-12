@@ -140,12 +140,24 @@ contract Main {
 
 
     function MyBets ()  external view returns (BetDetail[] memory){
-        BetDetail[] memory BetDetails = new BetDetail[](playerOrders[msg.sender].length+playerBets[msg.sender].length);
+        uint Orderslength = 0;
+        uint betslength = 0;
+        for (uint i =0; i<playerOrders[msg.sender].length;i++){
+            Orderslength += Betting(GuessThemes[playerOrders[msg.sender][i]]).getplayerOrderslength(msg.sender);
+        }
+        for (uint i =0; i<playerBets[msg.sender].length;i++){
+            betslength += Betting(GuessThemes[playerBets[msg.sender][i]]).getplayerBetslength(msg.sender);
+        }
+
+
+        BetDetail[] memory BetDetails = new BetDetail[](Orderslength+betslength);
         uint index = 0;
-        for(uint i=0;i<playerOrders[msg.sender].length;i++){ 
-            uint[] memory info = Betting(GuessThemes[playerOrders[msg.sender][i]]).getMyBetsOrder(msg.sender,i);
-            BetDetails[index] = BetDetail({
-                ThemeNames: Betting(GuessThemes[playerOrders[msg.sender][i]]).getbettingName() ,
+        for(uint i=0;i<playerOrders[msg.sender].length;i++){
+            string memory name = Betting(GuessThemes[playerOrders[msg.sender][i]]).getbettingName();
+            for(uint j = 0;j<Betting(GuessThemes[playerOrders[msg.sender][i]]).getplayerOrderslength(msg.sender);j++){
+                uint[] memory info = Betting(GuessThemes[playerOrders[msg.sender][i]]).getMyBetsOrder(msg.sender,j);
+                BetDetails[index] = BetDetail({
+                ThemeNames: name,
                 odds:info[0],
                 amounts:info[1],
                 prospectiveIncome:info[2],
@@ -153,12 +165,14 @@ contract Main {
                 result:info[4],
                 joinTime:info[5],
                 createTime:info[6]
-            });
+                });
             index += 1;
+            }
         }
         for(uint i=0;i<playerBets[msg.sender].length;i++){ 
-            uint[] memory info = Betting(GuessThemes[playerBets[msg.sender][i]]).getMyBets(msg.sender,i);
-            BetDetails[index] = BetDetail({
+            for(uint j = 0; j<Betting(GuessThemes[playerBets[msg.sender][i]]).getplayerBetslength(msg.sender);j++){
+                uint[] memory info = Betting(GuessThemes[playerBets[msg.sender][i]]).getMyBets(msg.sender,j);
+                BetDetails[index] = BetDetail({
                 ThemeNames: Betting(GuessThemes[playerBets[msg.sender][i]]).getbettingName() ,
                 odds:info[0],
                 amounts:info[1],
@@ -167,8 +181,10 @@ contract Main {
                 result:info[4],
                 joinTime:info[5],
                 createTime:info[6]
-            });
+                });
             index += 1;
+            }
+           
         }
         
         return (BetDetails);
