@@ -151,7 +151,7 @@ contract Betting {
         require(!ended , "Bet finsihed");
         // require(betOrders.length > 0, "Array is empty");
         // require(currentId[optionSelected] > 0, "Invalid bet option ID");
-        BetOrder memory betOrder = betOrders[currentId[optionSelected]-1];
+        BetOrder storage betOrder = betOrders[currentId[optionSelected]-1];
         // require(!betOrder.settled, "already settled");
         // already proceed
         require(!betOrder.proceed, "ap");
@@ -185,13 +185,14 @@ contract Betting {
         playerBets[sender].push(bets.length);
         betOrder.participation = true;
 
-        if(betOrder.prospectiveIncome == 0){
-            betOrder.prospectiveIncome = betOrder.orderAmount * 97/100;
-            betOrder.prospectiveIncome += msg.value * 97/100;
-        }
-        else{
-            betOrder.prospectiveIncome += msg.value * 97/100;
-        }
+        betOrder.prospectiveIncome += msg.value * 97/100;
+        // if(betOrder.prospectiveIncome == 0){
+        //     betOrder.prospectiveIncome = betOrder.orderAmount * 97/100;
+        //     betOrder.prospectiveIncome += msg.value * 97/100;
+        // }
+        // else{
+        //     betOrder.prospectiveIncome += msg.value * 97/100;
+        // }
         //寻找最大赔率订单索引 
         betOrder.betsPlacedAmount -= msg.value;
 
@@ -228,14 +229,14 @@ contract Betting {
             //待修改，目前可用
             if(betOrders[i].participation == true){
                 if(betOrders[i].option != optionSelected){
-                    payable(betOrders[i].user).transfer(betOrders[i].prospectiveIncome);
+                    payable(betOrders[i].user).transfer(betOrders[i].prospectiveIncome+betOrders[i].orderAmount);
                     betOrders[i].Income = betOrders[i].prospectiveIncome;
                     betOrders[i].settled = true;
                 }
                 else{
                     // 订单被部分投注
                     if(betOrders[i].proceed == false){
-                        payable(betOrders[i].user).transfer((betOrders[i].betsPlacedAmount * betOrders[i].betsPlacedAmount)/10);
+                        payable(betOrders[i].user).transfer((betOrders[i].betsPlacedAmount)/10);
                         betOrders[i].settled = true;
                     }
                 }
@@ -381,9 +382,9 @@ contract Betting {
     // function getAllBets() external view returns (Bet[] memory){
     //     return (bets);
     // }
-    // function getAllOrders() external view returns (BetOrder[] memory){
-    //     return (betOrders);
-    // }
+    function getAllOrders() external view returns (BetOrder[] memory){
+        return (betOrders);
+    }
     // function getBet(uint i) external view returns (Bet memory){
     //     return (bets[i]);
     // }
