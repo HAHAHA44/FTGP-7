@@ -8,6 +8,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { Typography } from '@mui/material';
 import { placeBet } from '../eth/index'
+import { notification } from '../eventbus';
 export const JoinHandicap = (props) => {
     const { open, onClose } = props;
     const {name, createTime, prediction, participants, yesPool, yesOdd, noOdd, noPool, id} = props.data;
@@ -16,6 +17,7 @@ export const JoinHandicap = (props) => {
         console.log("You will join this handicap with bet amount", betAmount);
         placeBet(betAmount, id, prediction ? 1 : 0);
         onClose();
+        notification("join handicap success");
     }
 
     return <Dialog open={open} onClose={onClose}>

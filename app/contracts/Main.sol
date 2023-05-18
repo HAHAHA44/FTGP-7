@@ -32,6 +32,7 @@ contract Main {
         uint result;
         uint joinTime;
         uint createTime;
+        bool isBanker;
     }
 
     struct ThemesDetail {
@@ -99,21 +100,22 @@ contract Main {
 
 
     // get all guess themes or user's themes
-    function getGuessThemes( uint offset, uint limit) external view returns (ThemesDetail[] memory, uint[][] memory,uint[][] memory){
+    function getGuessThemes( uint offset, uint limit) external view returns (ThemesDetail[] memory, uint[][] memory,uint[][] memory, bool[] memory){
         uint end = offset + limit > GuessThemes.length ? GuessThemes.length : offset + limit;
         uint length = offset > end ? 0 : end - offset;
         ThemesDetail[] memory ThemesDetails_part = new ThemesDetail[](length);
         uint[][] memory odds_part = new uint[][](length);
         uint[][] memory pools_part = new uint[][](length);
-       
+        bool[] memory ended_part = new bool[](length);
         uint j = 0;
         for (uint i = offset; i < end; i++) {
             odds_part[j] = Betting(ThemesDetails[i].GuessThemes).getOdds();
             pools_part[j] = Betting(ThemesDetails[i].GuessThemes).getPools();
+            ended_part[j] = Betting(ThemesDetails[i].GuessThemes).getend();
             ThemesDetails_part[j]= ThemesDetails[i];
             j++;
         }
-        return (ThemesDetails_part,odds_part,pools_part);
+        return (ThemesDetails_part,odds_part,pools_part,ended_part);
     }
 
     function createOrder(uint BetSelected, uint optionSelected, uint oddSetted) public payable {
@@ -164,7 +166,8 @@ contract Main {
                 option:info[3],
                 result:info[4],
                 joinTime:info[5],
-                createTime:info[6]
+                createTime:info[6],
+                isBanker: true
                 });
             index += 1;
             }
@@ -180,7 +183,8 @@ contract Main {
                 option:info[3],
                 result:info[4],
                 joinTime:info[5],
-                createTime:info[6]
+                createTime:info[6],
+                isBanker: false
                 });
             index += 1;
             }

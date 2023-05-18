@@ -62,7 +62,7 @@ export default function RecipeReviewCard(props) {
     setExpanded(!expanded);
   };
 
-  const {name, createTime, img, desc, source, yesPool, yesOdd, noPool, noOdd } = props.data;
+  const {name, ended, createTime, img, desc, source, yesPool, yesOdd, noPool, noOdd } = props.data;
   return (
     <Card sx={{ maxWidth: 345 }}>
       {/* <CardHeader
@@ -152,7 +152,7 @@ export default function RecipeReviewCard(props) {
           <Typography variant='body2' paragraph>
             Make your prediction (gwei):
           </Typography>
-          <ButtonGroup variant="contained" color='inherit' aria-label="outlined primary button group" fullWidth size='medium' orientation="vertical">
+          <ButtonGroup  disabled={ended} variant="contained" color='inherit' aria-label="outlined primary button group" fullWidth size='medium' orientation="vertical">
             <Button startIcon={<CheckCircleIcon></CheckCircleIcon>} color='success' onClick={() => {yesOdd === 0 ? handleJoinBankerOpen() : handleJoinHandicapOpen(true)}}>
               {/* Yes <br></br> */}
               {yesOdd === 0 ? "No Banker" : <React.Fragment>Odd: {yesOdd} &nbsp;

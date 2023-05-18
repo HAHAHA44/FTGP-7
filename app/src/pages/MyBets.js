@@ -8,23 +8,13 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { myBets } from '../eth';
 
-function createData(name, participants, odd, createTime, pool, betAmount, joinTime, result, prediction) {
-  return { name, participants, odd, createTime, pool, betAmount, joinTime, result, prediction };
-}
-const rows = [
-  createData('Will it rain tomorrow', 159, 6.0, '1991-01-01', 10000, 200, '1991-02-03', 1, 1),
-  createData('Will the sun drop down', 237, 100.0, '2009-09-21', 200, 10, '2010-01-01', -1, 1),
-  createData('Will QS rank of UoB goes up', 237, 100.0, '2019-09-21', 800, 60, '2022-03-01', 0, 0),
-];
-
 export default function MyBets() {
+  const [rows, setRows] = React.useState([]);
 
-  const fetchData = () => {
-    return new Promise((resolve) => {
-      myBets().then((res) => {
-        resolve(res);
-      })
-    });
+  const fetchData = async  () => {
+    const r = await myBets();
+    setRows(r);
+    return;
   };
 
   React.useEffect(() => {
@@ -39,7 +29,8 @@ export default function MyBets() {
             <TableCell>Name</TableCell>
             <TableCell align="right">Odd</TableCell>
             <TableCell align="right">Bet Amount</TableCell>
-            <TableCell align="right">Pool</TableCell>
+            <TableCell align="right">Expect Income</TableCell>
+            <TableCell align="right">Is Banker</TableCell>
             <TableCell align="right">Prediction</TableCell>
             <TableCell align="right">Result</TableCell>
             <TableCell align="right">Join Time</TableCell>
@@ -56,10 +47,11 @@ export default function MyBets() {
                 {row.name}
               </TableCell>
               <TableCell align="right">{row.odd}</TableCell>
-              <TableCell align="right">{row.betAmount}</TableCell>
-              <TableCell align="right">{row.pool}</TableCell>
+              <TableCell align="right">{row.amounts}</TableCell>
+              <TableCell align="right">{row.income}</TableCell>
+              <TableCell align="right">{row.isBanker ? 'Yes' : 'No'}</TableCell>
               <TableCell align="right">{row.prediction ? 'Will Happen' : 'Will Not Happen'}</TableCell>
-              <TableCell align="right">{row.result === 0 ? 'Lose' : row.result === -1 ? 'On Going' : 'Win'}</TableCell>
+              <TableCell align="right">{row.result === 0 ? 'Ongoing' : row.result === 1 ? 'Win' : row.result === 2 ? 'Lose' : 'Cancelled'}</TableCell>
               <TableCell align="right">{row.joinTime}</TableCell>
               <TableCell align="right">{row.createTime}</TableCell>
             </TableRow>

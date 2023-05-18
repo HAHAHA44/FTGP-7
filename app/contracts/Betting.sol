@@ -319,11 +319,15 @@ contract Betting {
         BetOrder memory order = betOrders[playerOrders[sender][i]-1];
         uint256 result = 3;
         if(order.canceled == true){
-            result = 2;
+            result = 3;
         }
         else{
             if(order.settled == true){
-                result = 1;
+                if (order.Income == order.prospectiveIncome) {
+                    result = 1; // win
+                } else {
+                    result = 2; // lose
+                }
             }
             else{
                 result = 0;
@@ -344,11 +348,15 @@ contract Betting {
         Bet storage bet =bets[playerBets[sender][i]-1];
         uint256 result = 3;
         if(bet.canceled == true){
-            result = 2;
+            result = 3;
         }
         else{
             if(bet.settled == true){
-                result = 1;
+                if (bet.Income == bet.prospectiveIncome) {
+                    result = 1; // win
+                } else {
+                    result = 2; // lose
+                }
             }
             else{
                 result = 0;

@@ -1,4 +1,4 @@
-export function getCat() {
+export function getCat(ind) {
     const cats = [
         'https://cdn.pixabay.com/photo/2022/06/27/14/38/cat-7287671_1280.jpg',
         'https://cdn.pixabay.com/photo/2020/11/15/18/31/cat-5746771__480.png',
@@ -7,5 +7,6 @@ export function getCat() {
         'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT7EihFE1ueFd_aTqNyoH09krhK--OggRiDFA&usqp=CAU',
         'https://p3.ssl.qhimg.com/t01f7d210920c0c73bd.jpg'
     ]
-    return cats[Math.floor(Math.random() * cats.length)];
+    const index = typeof ind === 'number' ? ind % cats.length : Math.floor(Math.random() * cats.length);
+    return cats[index];
 }

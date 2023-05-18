@@ -8,6 +8,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { Radio, Typography, RadioGroup, FormControl, FormLabel, FormControlLabel } from '@mui/material';
 import { createOrder } from "../eth/index";
+import { notification } from '../eventbus';
 export const JoinAsBanker = (props) => {
     const { open, onClose } = props;
     const {name, id, desc} = props.data;
@@ -23,6 +24,7 @@ export const JoinAsBanker = (props) => {
           odd
         )
         onClose();
+        notification("join as banker success");
     }
 
     return <Dialog open={open} onClose={onClose}>

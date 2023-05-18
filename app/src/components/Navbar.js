@@ -121,7 +121,7 @@ export default function CustomizedTabs() {
       >
         <Grid item>
           <Typography type="title" color="white"  variant="h4">
-            R7Bet
+            FishBet
           </Typography>
         </Grid>
         <Grid item>

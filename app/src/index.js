@@ -16,6 +16,7 @@ import {
 } from "react-router-dom";
 import CreateTheme from './pages/CreateTheme';
 import MyBets from './pages/MyBets';
+import Admin from './pages/Admin';
 
 
 const router = createHashRouter([
@@ -30,6 +31,10 @@ const router = createHashRouter([
       {
         path: "/createTheme",
         element: <CreateTheme />,
+      },
+      {
+        path: "/admin",
+        element: <Admin />,
       },
       {
         element: <MyBets />,
