@@ -1,9 +1,10 @@
-import { Button, Grid, Paper } from "@mui/material";
+import { Button, Grid, Paper, Typography } from "@mui/material";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { useState, useEffect, Fragment } from "react";
 import BetThemeItem from "../components/BetThemeItem";
 import { SearchBar } from "../components/SearchBar";
 import { getGuessThemes } from "../eth/index";
+import { blueGrey } from "@mui/material/colors";
 
 export default function App() {
   const [items, setItems] = useState([]);
@@ -59,6 +60,7 @@ const fetchData = () => {
         loader={<p>Loading...</p>}
       > */}
         <Grid container spacing={2}>
+          {!hasMore && items.length === 0 && <Typography variant="h1" color={blueGrey} marginTop={10}>There is no betting theme yet :( ...... please create one first</Typography>}
           {items.map((item, index) => (
             <Grid item key={index} xs={12} sm={6} md={4} lg={3}>
                 <BetThemeItem data={item}></BetThemeItem>
