@@ -6,6 +6,10 @@ import { getCat } from "../utils";
 
 const address = Addresses.Main;
 
+export const state = {
+  connected: false,
+}
+
 // async function _initializeEthers() {
 //     // We first initialize ethers by creating a provider using window.ethereum
 //     this._provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -26,6 +30,7 @@ export async function connect() {
     // use this way to wake up metamask.
     const accounts = await provider.send("eth_requestAccounts", []);
     const account = accounts[0];
+    state.connected = true;
     return account;
   } else {
     alert("Please install MetaMask");
@@ -33,6 +38,7 @@ export async function connect() {
 }
 
 export async function disconnect() {
+  state.connected = false;
   if (window.ethereum) {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
 

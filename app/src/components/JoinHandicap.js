@@ -9,12 +9,18 @@ import DialogTitle from '@mui/material/DialogTitle';
 import { Typography } from '@mui/material';
 import { placeBet } from '../eth/index'
 import { notification } from '../eventbus';
+import { state } from '../eth/index';
+
 export const JoinHandicap = (props) => {
     const { open, onClose } = props;
     const {name, createTime, prediction, participants, yesPool, yesOdd, noOdd, noPool, id} = props.data;
     const [betAmount, setBetAmount] = React.useState(100);
     const onGo = () => {
         console.log("You will join this handicap with bet amount", betAmount);
+        if (!state.connected) {
+            notification('please connect to you account first', 'error');
+            return;
+        }
         placeBet(betAmount, id, prediction ? 1 : 0);
         onClose();
         notification("join handicap success");

@@ -9,6 +9,8 @@ import DialogTitle from '@mui/material/DialogTitle';
 import { Radio, Typography, RadioGroup, FormControl, FormLabel, FormControlLabel } from '@mui/material';
 import { createOrder } from "../eth/index";
 import { notification } from '../eventbus';
+import { state } from '../eth/index';
+
 export const JoinAsBanker = (props) => {
     const { open, onClose } = props;
     const {name, id, desc} = props.data;
@@ -17,6 +19,10 @@ export const JoinAsBanker = (props) => {
     const [odd, setOdd] = React.useState(4);
     const onGo = () => {
         console.log("You will join this bet theme as a banker", prediction, pool, odd, typeof prediction);
+        if (!state.connected) {
+            notification('please connect to you account first', 'error');
+            return;
+        }
         createOrder(
           pool,
           id,

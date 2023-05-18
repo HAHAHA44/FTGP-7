@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import { TextField, Button, Container, Stack, Radio, FormControl, RadioGroup, FormLabel, FormControlLabel } from '@mui/material';
 import { Link } from "react-router-dom"
-import { createGuessTheme } from "../eth/index"
+import { createGuessTheme, state } from "../eth/index"
 import { useNavigate } from "react-router-dom";
 import { EventBus, notification } from '../eventbus';
 
@@ -19,6 +19,10 @@ const CreateTheme = () => {
     async function handleSubmit(event) {
         event.preventDefault();
         console.log(themeName, prediction, pool, odd);
+        if (!state.connected) {
+            notification('please connect to you account first', 'error');
+            return;
+        }
         const ret = await createGuessTheme(pool, themeName, desc, Math.floor((Date.parse(endTime) - Date.now())/1000), source);
         console.log("create theme success", ret);
         navigate("/");
