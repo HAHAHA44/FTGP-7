@@ -12,6 +12,8 @@ contract Main {
     //mapping(address => address[]) public Betaddresses; // Betaddresses 使用映射，什么地址发出的请求获得其地址的下注信息
     mapping(address => uint[]) public playerOrders; // playerOrders 使用映射，什么地址发出的请求获得其地址的下庄信息
     mapping(address => uint[]) public playerBets;
+    mapping(address => mapping(uint => bool)) public orderExists;
+    mapping(address => mapping(uint => bool)) public betExists;
 
     address[] public Admins;
 
@@ -122,12 +124,18 @@ contract Main {
 
         address payable target = payable(GuessThemes[BetSelected]); // 目标合约地址
         Betting(target).createOrder{value: msg.value}(payable (msg.sender),optionSelected,oddSetted); 
-        playerOrders[msg.sender].push(BetSelected);
+        if (!orderExists[msg.sender][BetSelected]) {
+            playerOrders[msg.sender].push(BetSelected);
+            orderExists[msg.sender][BetSelected] = true;
+        }
     }
     function placeBet(uint BetSelected, uint256 optionSelected) public payable {
         address payable target = payable(GuessThemes[BetSelected]);
         Betting(target).placeBet{value: msg.value}(payable (msg.sender) ,optionSelected); 
-        playerBets[msg.sender].push(BetSelected);
+        if (!betExists[msg.sender][BetSelected]) {
+            playerBets[msg.sender].push(BetSelected);
+            betExists[msg.sender][BetSelected] = true;
+        }
     }
 
     function settle(uint BetSelected, uint256 optionSelected) public payable checkAdmin() {
@@ -173,10 +181,11 @@ contract Main {
             }
         }
         for(uint i=0;i<playerBets[msg.sender].length;i++){ 
+            string memory name = Betting(GuessThemes[playerOrders[msg.sender][i]]).getbettingName();
             for(uint j = 0; j<Betting(GuessThemes[playerBets[msg.sender][i]]).getplayerBetslength(msg.sender);j++){
                 uint[] memory info = Betting(GuessThemes[playerBets[msg.sender][i]]).getMyBets(msg.sender,j);
                 BetDetails[index] = BetDetail({
-                ThemeNames: Betting(GuessThemes[playerBets[msg.sender][i]]).getbettingName() ,
+                ThemeNames: name,
                 odds:info[0],
                 amounts:info[1],
                 prospectiveIncome:info[2],
