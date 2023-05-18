@@ -1,5 +1,11 @@
 export function getCat(ind) {
     const cats = [
+        'images.jpeg',
+        'images (1).jpeg',
+        'images (2).jpeg',
+        'images (3).jpeg',
+        'images (4).jpeg',
+        'download.jpeg',
         'https://cdn.pixabay.com/photo/2022/06/27/14/38/cat-7287671_1280.jpg',
         'https://cdn.pixabay.com/photo/2020/11/15/18/31/cat-5746771__480.png',
         'https://cdn.pixabay.com/photo/2016/10/11/18/17/black-cat-1732366__480.png',
