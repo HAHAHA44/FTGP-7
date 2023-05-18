@@ -11,6 +11,7 @@ contract Betting {
     string BettingTopic;
     uint private bettingstarts;
     address private mainAddr;
+    uint private finalOption;
     
     
     //订单和下注单对象数组
@@ -86,6 +87,7 @@ contract Betting {
         BettingId = _BettingId;
         BettingTopic = _topic;
         bettingstarts = block.timestamp;
+        finalOption = 9999;
         bettingEnds = block.timestamp + _bettingTime;
         currentOdd=new uint[](_numOfoptions);
         currentId=new uint[](_numOfoptions);
@@ -256,7 +258,8 @@ contract Betting {
                     }
             }
         }
-        ended =true;       
+        ended =true;    
+        finalOption = optionSelected;   
     }
     //  取消这次竞猜
     function cancel() public {
@@ -297,6 +300,10 @@ contract Betting {
     
     function getend() external view returns (bool){
         return (ended);
+    }
+
+    function getFinalOption () external view returns (uint){
+        return (finalOption);
     }
     
     function getOdds() external view returns (uint256[] memory){

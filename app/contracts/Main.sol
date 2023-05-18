@@ -100,22 +100,22 @@ contract Main {
 
 
     // get all guess themes or user's themes
-    function getGuessThemes( uint offset, uint limit) external view returns (ThemesDetail[] memory, uint[][] memory,uint[][] memory, bool[] memory){
+    function getGuessThemes( uint offset, uint limit) external view returns (ThemesDetail[] memory, uint[][] memory,uint[][] memory, uint[] memory){
         uint end = offset + limit > GuessThemes.length ? GuessThemes.length : offset + limit;
         uint length = offset > end ? 0 : end - offset;
         ThemesDetail[] memory ThemesDetails_part = new ThemesDetail[](length);
         uint[][] memory odds_part = new uint[][](length);
         uint[][] memory pools_part = new uint[][](length);
-        bool[] memory ended_part = new bool[](length);
+        uint[] memory finOp_part = new uint[](length);
         uint j = 0;
         for (uint i = offset; i < end; i++) {
             odds_part[j] = Betting(ThemesDetails[i].GuessThemes).getOdds();
             pools_part[j] = Betting(ThemesDetails[i].GuessThemes).getPools();
-            ended_part[j] = Betting(ThemesDetails[i].GuessThemes).getend();
+            finOp_part[j] = Betting(ThemesDetails[i].GuessThemes).getFinalOption();
             ThemesDetails_part[j]= ThemesDetails[i];
             j++;
         }
-        return (ThemesDetails_part,odds_part,pools_part,ended_part);
+        return (ThemesDetails_part,odds_part,pools_part,finOp_part);
     }
 
     function createOrder(uint BetSelected, uint optionSelected, uint oddSetted) public payable {

@@ -79,7 +79,7 @@ function formatGuessThemes(data) {
   let l = data[0];
   let odd = data[1];
   let pool = data[2];
-  let ended = data[3];
+  let finOp = data[3];
   ;
   let ret = [];
   for (let i = 0; i < l.length; i++) {
@@ -95,7 +95,8 @@ function formatGuessThemes(data) {
       startTime: new Date(cur.startTime.toNumber() * 1000).toLocaleString("en-US"),
       id: cur.id.toNumber(),
       img: getCat(cur.id.toNumber()),
-      ended: ended[i],
+      finOp: finOp[i].toNumber(),
+      ended: finOp[i].toNumber() === 9999 ? false : true
     });
   }
   return ret;

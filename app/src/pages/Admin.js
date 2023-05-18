@@ -74,6 +74,7 @@ export default function Admin() {
             <TableCell>Options</TableCell>
             <TableCell>Name</TableCell>
             <TableCell align="right">Ended</TableCell>
+            <TableCell align="right">FinalOption</TableCell>
             <TableCell align="right">Id</TableCell>
             <TableCell align="right">noOdd</TableCell>
             <TableCell align="right">yesOdd</TableCell>
@@ -105,6 +106,7 @@ export default function Admin() {
                 {row.name}
               </TableCell>
               <TableCell align="right">{row.ended ? 'Yes' : 'No'}</TableCell>
+              <TableCell align="right">{row.finOp === 9999 ? "None" : row.finOp === 0 ? "No" : "Yes"}</TableCell>
               <TableCell align="right">{row.id}</TableCell>
               <TableCell align="right">{row.noOdd}</TableCell>
               <TableCell align="right">{row.yesOdd}</TableCell>

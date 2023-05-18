@@ -62,7 +62,7 @@ export default function RecipeReviewCard(props) {
     setExpanded(!expanded);
   };
 
-  const {name, ended, createTime, img, desc, source, yesPool, yesOdd, noPool, noOdd } = props.data;
+  const {name, finOp, ended, createTime, img, desc, source, yesPool, yesOdd, noPool, noOdd } = props.data;
   return (
     <Card sx={{ maxWidth: 345 }}>
       {/* <CardHeader
@@ -149,6 +149,9 @@ export default function RecipeReviewCard(props) {
           <Typography variant='body2' paragraph>
             Source: {source}
           </Typography>
+          {ended && <Typography variant='body2' paragraph>
+            Result: {finOp === 0 ? "Not happened!!" : "Happened!!"}
+          </Typography>}
           <Typography variant='body2' paragraph>
             Make your prediction (gwei):
           </Typography>
