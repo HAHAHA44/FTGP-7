@@ -1,125 +1,96 @@
-const {
-  time,
-  loadFixture,
-} = require("@nomicfoundation/hardhat-network-helpers");
-const { anyValue } = require("@nomicfoundation/hardhat-chai-matchers/withArgs");
+// test/Main.test.js
 const { expect } = require("chai");
-const admins = require("../admins.json").admins
-
-
+const { ethers } = require("hardhat");
 
 describe("Main", function () {
-  // We define a fixture to reuse the same setup in every test.
-  // We use loadFixture to run this setup once, snapshot that state,
-  // and reset Hardhat Network to that snapshot in every test.
-  async function deployMainFixture() {
-    const ONE_GWEI = 1_000_000_000;
+  let mainContract;
+  let bettingContract;
+  let owner;
+  let addr1;
+  let addr2;
 
-    // Contracts are deployed using the first signer/account by default
-    const [owner, otherAccount] = await ethers.getSigners();
-
-    console.log(owner.address);
+  beforeEach(async function () {
+    [owner, addr1, addr2] = await ethers.getSigners();
     const Main = await ethers.getContractFactory("Main");
-
-    const main = await Main.deploy(admins);
-
-    return { main, owner };
-  }
-
-  describe("Deployment", function () {
-    it("Should set the right admin", async function () {
-      const { main } = await loadFixture(deployMainFixture);
-
-      const admin = await main.getAdmin();
-
-      expect(admin[0]).to.equal(admins[0]);
-    });
-
-
+    mainContract = await Main.deploy([ethers.constants.AddressZero]);
+    await mainContract.deployed();
   });
 
-  describe("Create theme", function() {
-    it("Should create theme correctly", async function () {
-      const { main } = await loadFixture(deployMainFixture);
+  it("should create a guess theme", async function () {
+    const topic = "Test Theme";
+    const description = "This is a test theme";
+    const bettingTime = 3600;
+    const source = "Source";
 
-      const ret = main.createGuessTHeme(
-				"test1",
-				"none",
-				10,
-				5,
-				2,
-				1,
-				1000,
-				"none",
-			);
+    await mainContract.createGuessTheme(topic, description, bettingTime, source);
 
-      expect(ret).not.to.be.reverted;
-    });
+    const guessThemes = await mainContract.getGuessThemes(0, 10);
+    const createdTheme = guessThemes[0][0];
+
+    expect(createdTheme.ThemeNames).to.equal(topic);
+    expect(createdTheme.Owners).to.equal(owner.address);
+    expect(createdTheme.Descriptions).to.equal(description);
+    expect(createdTheme.Sources).to.equal(source);
   });
 
-  //   describe("Withdrawals", function () {
-  //     describe("Validations", function () {
-  //       it("Should revert with the right error if called too soon", async function () {
-  //         const { lock } = await loadFixture(deployOneYearLockFixture);
+  it("should create an order", async function () {
+    const topic = "Test Theme";
+    const description = "This is a test theme";
+    const bettingTime = 3600;
+    const source = "Source";
 
-  //         await expect(lock.withdraw()).to.be.revertedWith(
-  //           "You can't withdraw yet"
-  //         );
-  //       });
+    await mainContract.createGuessTheme(topic, description, bettingTime, source);
 
-  //       it("Should revert with the right error if called from another account", async function () {
-  //         const { lock, unlockTime, otherAccount } = await loadFixture(
-  //           deployOneYearLockFixture
-  //         );
+    const guessThemes = await mainContract.getGuessThemes(0, 10);
+    const createdTheme = guessThemes[0][0];
 
-  //         // We can increase the time in Hardhat Network
-  //         await time.increaseTo(unlockTime);
+    const betSelected = 0;
+    const optionSelected = 0;
+    const oddSetted = 2;
 
-  //         // We use lock.connect() to send a transaction from another account
-  //         await expect(lock.connect(otherAccount).withdraw()).to.be.revertedWith(
-  //           "You aren't the owner"
-  //         );
-  //       });
+    await mainContract.createOrder(betSelected, optionSelected, oddSetted, { value: ethers.utils.parseEther("1") });
 
-  //       it("Shouldn't fail if the unlockTime has arrived and the owner calls it", async function () {
-  //         const { lock, unlockTime } = await loadFixture(
-  //           deployOneYearLockFixture
-  //         );
+    const bettingContractAddress = createdTheme.GuessThemes;
+    const Betting = await ethers.getContractFactory("Betting");
+    console.log(bettingContractAddress);
+    bettingContract = Betting.attach(bettingContractAddress);
 
-  //         // Transactions are sent using the first signer by default
-  //         await time.increaseTo(unlockTime);
+    const playerOrders = await mainContract.playerOrders(owner.address, 0);
 
-  //         await expect(lock.withdraw()).not.to.be.reverted;
-  //       });
-  //     });
+    console.log(playerOrders);
 
-  //     describe("Events", function () {
-  //       it("Should emit an event on withdrawals", async function () {
-  //         const { lock, unlockTime, lockedAmount } = await loadFixture(
-  //           deployOneYearLockFixture
-  //         );
+    expect(playerOrders).to.equal(betSelected);
+  });
 
-  //         await time.increaseTo(unlockTime);
+  it("should place a bet", async function () {
+    const topic = "Test Theme";
+    const description = "This is a test theme";
+    const bettingTime = 3600;
+    const source = "Source";
 
-  //         await expect(lock.withdraw())
-  //           .to.emit(lock, "Withdrawal")
-  //           .withArgs(lockedAmount, anyValue); // We accept any value as `when` arg
-  //       });
-  //     });
+    await mainContract.createGuessTheme(topic, description, bettingTime, source);
 
-  //     describe("Transfers", function () {
-  //       it("Should transfer the funds to the owner", async function () {
-  //         const { lock, unlockTime, lockedAmount, owner } = await loadFixture(
-  //           deployOneYearLockFixture
-  //         );
+    const guessThemes = await mainContract.getGuessThemes(0, 10);
+    const createdTheme = guessThemes[0][0];
 
-  //         await time.increaseTo(unlockTime);
+    const betSelected = 0;
+    const optionSelected = 0;
+    const oddSetted = 2;
 
-  //         await expect(lock.withdraw()).to.changeEtherBalances(
-  //           [owner, lock],
-  //           [lockedAmount, -lockedAmount]
-  //         );
-  //       });
-  //     });
-  //   });
+    await mainContract.createOrder(betSelected, optionSelected, oddSetted, { value: ethers.utils.parseUnits("4000", "gwei"), });
+
+    await mainContract.placeBet(betSelected, optionSelected, { value: ethers.utils.parseUnits("100", "gwei") });
+
+    const bettingContractAddress = createdTheme.GuessThemes;
+    const Betting = await ethers.getContractFactory("Betting");
+    console.log(bettingContractAddress);
+    bettingContract = Betting.attach(bettingContractAddress);
+
+    const playerBets = await mainContract.playerBets(owner.address, 0);
+
+    expect(playerBets).to.equal(betSelected);
+  });
+
+  
+
 });
