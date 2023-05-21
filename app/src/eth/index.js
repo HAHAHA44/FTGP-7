@@ -91,8 +91,8 @@ function formatGuessThemes(data) {
   for (let i = 0; i < l.length; i++) {
     let cur = l[i];
     ret.push({
-      noOdd: odd[i][0].toNumber(),
-      yesOdd: odd[i][1].toNumber(),
+      noOdd: odd[i][0].toNumber() / 10,
+      yesOdd: odd[i][1].toNumber() / 10,
       noPool: ethers.utils.formatUnits(pool[i][0], 'gwei').toString(),
       yesPool: ethers.utils.formatUnits(pool[i][1], 'gwei').toString(),
       desc: cur.Descriptions,
@@ -127,6 +127,7 @@ export async function getGuessThemes(offset, limit) {
 }
 
 export async function createOrder(value, betId, option, odd) {
+  odd = Math.floor(odd * 10);
   if (typeof window.ethereum !== "undefined") {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const signer = provider.getSigner();
@@ -178,7 +179,7 @@ function formatMyBets(data) {
     let cur = data[i];
     ret.push({
       name: cur.ThemeNames,
-      odd: cur.odds.toNumber(),
+      odd: cur.odds.toNumber() / 10,
       amounts: ethers.utils.formatUnits(cur.amounts, "gwei"),
       income: ethers.utils.formatUnits(cur.prospectiveIncome, "gwei"),
       prediction: cur.option.toNumber(),

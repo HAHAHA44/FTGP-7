@@ -61,7 +61,7 @@ const fetchData = () => {
       > */}
         <Grid container spacing={2}>
           {!hasMore && items.length === 0 && <Typography variant="h1" color={blueGrey} marginTop={10}>There is no betting theme yet :( ...... please create one first</Typography>}
-          {items.map((item, index) => (
+          {items && items.map((item, index) => (
             <Grid item key={index} xs={12} sm={6} md={4} lg={3}>
                 <BetThemeItem data={item}></BetThemeItem>
             </Grid>

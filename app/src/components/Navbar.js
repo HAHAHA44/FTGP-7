@@ -108,6 +108,10 @@ export default function CustomizedTabs() {
 
   const open = Boolean(anchorEl);
 
+  React.useEffect(() => {
+    connectAccount();
+  }, [])
+
   return (
     // <BrowserRouter>
       <Grid
@@ -133,6 +137,7 @@ export default function CustomizedTabs() {
           >
             <StyledTab label="Home" component={Link}  to="/" />
             <StyledTab label="Create Theme" component={Link}  to="/createTheme" />
+            <StyledTab label="Guide" component={Link}  to="/guide" />
             {/* <StyledTab label="Connections" component={Link} to="/guess" /> */}
           </StyledTabs>
           <Button

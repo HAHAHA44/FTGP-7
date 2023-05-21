@@ -6,7 +6,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-import { cancel, getGuessThemes, myBets, settle } from '../eth';
+import { cancel, connect, getGuessThemes, myBets, settle } from '../eth';
 import CancelIcon from '@mui/icons-material/Cancel';
 import DoDisturbIcon from '@mui/icons-material/DoDisturb';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -17,7 +17,6 @@ import { notification } from '../eventbus';
 
 export default function Admin() {
   const [rows, setRows] = React.useState([]);
-
 
   const handleSettle = async (id, option) => {
     if (option === -1) {
@@ -86,7 +85,7 @@ export default function Admin() {
           </TableRow>
         </TableHead>
         <TableBody>
-          {rows.map((row) => (
+          {rows && rows.map((row) => (
             <TableRow
               key={row.id}
               sx={{ '&:last-child td, &:last-child th': { border: 0 } }}

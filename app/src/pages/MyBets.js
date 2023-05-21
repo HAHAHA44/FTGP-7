@@ -38,9 +38,9 @@ export default function MyBets() {
           </TableRow>
         </TableHead>
         <TableBody>
-          {rows.map((row) => (
+          {rows && rows.map((row) => (
             <TableRow
-              key={row.name}
+              key={row.joinTime}
               sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
             >
               <TableCell component="th" scope="row">

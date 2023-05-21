@@ -17,6 +17,7 @@ import {
 import CreateTheme from './pages/CreateTheme';
 import MyBets from './pages/MyBets';
 import Admin from './pages/Admin';
+import Guide from './pages/Guide';
 
 
 const router = createHashRouter([
@@ -35,6 +36,10 @@ const router = createHashRouter([
       {
         path: "/admin",
         element: <Admin />,
+      },
+      {
+        path: "/guide",
+        element: <Guide />,
       },
       {
         element: <MyBets />,
