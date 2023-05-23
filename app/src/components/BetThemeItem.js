@@ -62,7 +62,7 @@ export default function RecipeReviewCard(props) {
     setExpanded(!expanded);
   };
 
-  const {name, finOp, ended, createTime, img, desc, source, yesPool, yesOdd, noPool, noOdd } = props.data;
+  const {name, finOp, ended, startTime, img, desc, source, yesPool, yesOdd, noPool, noOdd } = props.data;
   return (
     <Card sx={{ maxWidth: 345 }}>
       {/* <CardHeader
@@ -113,8 +113,8 @@ export default function RecipeReviewCard(props) {
         }
         title={name}
         titleTypographyProps={{variant: 'h6'}}
-        subheaderTypographyProps={{variant: 'subtitle1'}}
-        subheader={createTime}
+        // subheaderTypographyProps={{variant: 'subtitle1'}}
+        // subheader={startTime}
       />
       {/* <CardActions disableSpacing>
         <IconButton aria-label="add to favorites">
@@ -145,6 +145,9 @@ export default function RecipeReviewCard(props) {
           </Typography> */}
           <Typography variant='body2' paragraph>
             {desc}
+          </Typography>
+          <Typography variant='body2' paragraph>
+            {startTime}
           </Typography>
           <Typography variant='body2' paragraph>
             Source: {source}

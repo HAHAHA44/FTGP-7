@@ -8,10 +8,17 @@ const hre = require("hardhat");
 const path = require("path");
 const admins = require("../admins.json").admins
 
+let deployer;
+
 async function main() {
   const currentTimestampInSeconds = Math.round(Date.now() / 1000);
 
   const fs = require("fs");
+
+  [deployer] = await ethers.getSigners();
+
+  console.log("account balance:", (await deployer.getBalance()).toString());
+
   const contractsDir = path.join(__dirname, "..", "src", "artifacts");
 
   const main = await deployMain();
@@ -23,13 +30,15 @@ async function main() {
 }
 
 async function deployMain() {
+  // if deploy to test network
+  admins = [deployer.address];
   const Main = await hre.ethers.getContractFactory("Main");
   const main = await Main.deploy(admins);
 
   await main.deployed();
 
   console.log(
-    `main deployed to ${main.address}`
+    `main deployed to ${main.address}, admin is ${admins}`
   );
 
   return main;
